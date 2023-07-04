@@ -47,6 +47,18 @@ pip install requests
 ```bash
 pip install django-cors-headers
 ```
+#### 安装numpy
+```bash
+pip install numpy
+```
+#### 安装Opencv
+```bash
+pip install opencv-python
+```
+#### 如果要跑模型，先确保电脑有Nvidia显卡，并安装了CUDA，再运行下面的命令
+```bash
+pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu117
+```
 
 ### 数据库连接配置
 ```bash

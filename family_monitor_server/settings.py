@@ -26,6 +26,7 @@ INSTALLED_APPS = [
     # apps
     'recognition',
     'user',
+    'channels'
 ]
 
 MIDDLEWARE = [
@@ -35,8 +36,17 @@ MIDDLEWARE = [
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware'
 ]
+
+
+ASGI_APPLICATION = 'family_monitor_server.asgi.application'
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels.layers.InMemoryChannelLayer',
+    },
+}
 
 ROOT_URLCONF = 'family_monitor_server.urls'
 
@@ -113,5 +123,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CORS_ORIGIN_WHITELIST = (
     'http://127.0.0.1:8000',
     'http://localhost:8000',
+    'ws://127.0.0.1:8000',
+    'ws://localhost:8000'
 )
 CORS_ALLOW_CREDENTIALS = True  # 允许携带cookie
