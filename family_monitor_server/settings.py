@@ -17,16 +17,18 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    # apps
+    'recognition',
+    'user',
+    'channels',
+    'daphne',
+
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    # apps
-    'recognition',
-    'user',
-    'channels'
 ]
 
 MIDDLEWARE = [
@@ -44,7 +46,11 @@ ASGI_APPLICATION = 'family_monitor_server.asgi.application'
 
 CHANNEL_LAYERS = {
     'default': {
-        'BACKEND': 'channels.layers.InMemoryChannelLayer',
+        # 'BACKEND': 'channels.layers.InMemoryChannelLayer',
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            'hosts': [('127.0.0.1', 6379)],
+        },
     },
 }
 
@@ -123,7 +129,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CORS_ORIGIN_WHITELIST = (
     'http://127.0.0.1:8000',
     'http://localhost:8000',
-    'ws://127.0.0.1:8000',
-    'ws://localhost:8000'
+    # 'ws://127.0.0.1:8000',
+    # 'ws://localhost:8000'
 )
 CORS_ALLOW_CREDENTIALS = True  # 允许携带cookie

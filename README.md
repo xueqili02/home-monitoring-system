@@ -55,10 +55,15 @@ pip install numpy
 ```bash
 pip install opencv-python
 ```
-#### 如果要跑模型，先确保电脑有Nvidia显卡，并安装了CUDA，再运行下面的命令
+#### 安装 channels 和 daphne
 ```bash
-pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu117
+pip install channels daphne
 ```
+#### 安装websockets
+```bash
+pip install websockets
+```
+
 
 ### 数据库连接配置
 ```bash
