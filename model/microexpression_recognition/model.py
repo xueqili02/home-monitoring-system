@@ -1,7 +1,7 @@
 import os
 import cv2
 import tensorflow as tf
-from utils import *
+from model.microexpression_recognition.utils import *
 
 EMOTIONS = ['angry', 'disgusted', 'fearful', 'happy', 'sad', 'surprised', 'neutral']
 

@@ -48,7 +48,7 @@ def emo_reco():
                     faceExpResizedTensor = transform(faceExpResized)
                     prediction = EMR.predict_image(faceExpResizedTensor, model, device)
                     cv2.putText(frame, prediction, (x, y), cv2.FONT_HERSHEY_COMPLEX, 1, (0, 0, 255))
-            cv2.imshow('MER', frame)
+            # cv2.imshow('MER', frame)
 
             # Convert the frame to JPEG format
             ret, jpeg = cv2.imencode('.jpg', frame)

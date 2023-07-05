@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 from model import *
 
 #opencv自带的人脸识别器
-CASC_PATH = 'haarcascade_frontalface_alt2.xml'
+CASC_PATH = 'model/microexpression_recognition/haarcascade_frontalface_alt2.xml'
 cascade_classifier = cv2.CascadeClassifier(CASC_PATH)
 EMOTIONS = ['angry', 'disgusted', 'fearful', 'happy', 'sad', 'surprised', 'neutral']
 
