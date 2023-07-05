@@ -15,7 +15,7 @@ def emo_reco():
     print("Selected device:", device)
 
     # Loading pretrained weights
-    w = '.\model_U.pth'
+    w = './model_U.pth'
     model = EMR.to_device(EMR.MERCnnModel(), device)
     if str(device) == 'cpu':
         model.load_state_dict(torch.load(w, map_location=torch.device('cpu')))  # use for cpu

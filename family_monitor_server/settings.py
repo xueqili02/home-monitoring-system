@@ -20,6 +20,8 @@ INSTALLED_APPS = [
     # apps
     'recognition',
     'user',
+    'emotion',
+    'microexpression',
     'channels',
     # 'daphne',
 
