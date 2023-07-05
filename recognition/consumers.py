@@ -21,8 +21,6 @@ class ObjectDetectionConsumer(AsyncWebsocketConsumer):
             self.video_group_name, {"type": "object.detect", "message": text_data}
         )
 
-
     async def object_detect(self, event):
         message = event['message']
-
         await self.send(text_data=json.dumps({"message": message}))

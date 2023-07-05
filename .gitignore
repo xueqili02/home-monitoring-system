@@ -4,3 +4,8 @@
 __pycache__/
 /db.sqlite3
 /db_setting.cnf
+/model/emotional_recognition/model_U.pth
+/model/microexpression_recognition/checkpoint
+/model/microexpression_recognition/emotion_model-30001.data-00000-of-00001
+/model/microexpression_recognition/emotion_model-30001.index
+/model/microexpression_recognition/emotion_model-30001.meta

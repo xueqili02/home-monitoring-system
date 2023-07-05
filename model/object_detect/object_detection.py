@@ -32,7 +32,7 @@ def object_detect():
     # print("Active objects: ", active_objects)
 
     # local camera
-    cap = cv2.VideoCapture(0)
+    cap = cv2.VideoCapture('rtmp://47.92.211.14:1935/live')
 
     while True:
         flag, img_rd = cap.read()
