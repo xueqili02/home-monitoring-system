@@ -11,6 +11,7 @@ EMOTIONS = ['angry', 'disgusted', 'fearful', 'happy', 'sad', 'surprised', 'neutr
 
 def format_image(image):
     # image如果为彩色图：image.shape[0][1][2](水平、垂直像素、通道数)
+    faces = None
     if len(image.shape) > 2 and image.shape[2] == 3:
         # 将图片变为灰度图
         image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
@@ -56,7 +57,7 @@ def demo(modelPath, showBox=True):
     if ckpt and ckpt.model_checkpoint_path:
         saver.restore(sess, ckpt.model_checkpoint_path)
 
-    # 获取笔记本的摄像头，
+    # get remote camera
     video_captor = cv2.VideoCapture('rtmp://47.92.211.14:1935/live')
 
     emoji_face = []
@@ -64,13 +65,12 @@ def demo(modelPath, showBox=True):
     while True:
         ret, frame = video_captor.read()
         detected_face, face_coor = format_image(frame)
-        if showBox:
-            if face_coor is not None:
-                # 获取人脸的坐标,并用矩形框出
-                [x, y, w, h] = face_coor
-                cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 255, 0), 2)
-                tensor = image_to_tensor(detected_face)
-                result = sess.run(probs, feed_dict={face_x: tensor})
+        if showBox and face_coor is not None:
+            # 获取人脸的坐标,并用矩形框出
+            [x, y, w, h] = face_coor
+            cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 255, 0), 2)
+            tensor = image_to_tensor(detected_face)
+            result = sess.run(probs, feed_dict={face_x: tensor})
 
         if result is not None:
             for index, emotion in enumerate(EMOTIONS):
