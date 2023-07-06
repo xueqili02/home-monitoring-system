@@ -57,7 +57,7 @@ def demo(modelPath, showBox=True):
         saver.restore(sess, ckpt.model_checkpoint_path)
 
     # 获取笔记本的摄像头，
-    video_captor = cv2.VideoCapture(0)
+    video_captor = cv2.VideoCapture('rtmp://47.92.211.14:1935/live')
 
     emoji_face = []
     result = None
