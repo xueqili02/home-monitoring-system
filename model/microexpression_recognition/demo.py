@@ -1,13 +1,9 @@
 import cv2
-import numpy as np
-import sys
 import tensorflow as tf
-import PIL.Image as Image
-import matplotlib.pyplot as plt
 
-from model import *
+from model.microexpression_recognition.model import image_to_tensor, deepnn
 
-#opencv自带的人脸识别器
+# opencv自带的人脸识别器
 CASC_PATH = 'model/microexpression_recognition/haarcascade_frontalface_alt2.xml'
 cascade_classifier = cv2.CascadeClassifier(CASC_PATH)
 EMOTIONS = ['angry', 'disgusted', 'fearful', 'happy', 'sad', 'surprised', 'neutral']
@@ -41,6 +37,7 @@ def format_image(image):
         return None, None
 
     return image, face_coor
+
 
 def demo(modelPath, showBox=True):
     # 调用模型分析人脸微表情
@@ -78,13 +75,15 @@ def demo(modelPath, showBox=True):
         if result is not None:
             for index, emotion in enumerate(EMOTIONS):
                 # 将七种微表情的文字添加到图片中
-                cv2.putText(frame,emotion,(10,index*20 + 20),cv2.FONT_HERSHEY_PLAIN, 1, (0, 255, 0), 1)
+                cv2.putText(frame, emotion, (10, index * 20 + 20), cv2.FONT_HERSHEY_PLAIN, 1, (0, 255, 0), 1)
                 # 将微表情的概率用矩形表现出来
-                cv2.rectangle(frame,(130, index*20 + 10),(130+int(result[0][index]*100), (index + 1) * 20 + 4), (255, 0, 0), -1)
+                cv2.rectangle(frame, (130, index * 20 + 10), (130 + int(result[0][index] * 100), (index + 1) * 20 + 4),
+                              (255, 0, 0), -1)
 
-        cv2.imshow('face', frame)
-        if cv2.waitKey(10) & 0xFF == ord('q'):
-            break
+        yield frame
+        # cv2.imshow('face', frame)
+        # if cv2.waitKey(10) & 0xFF == ord('q'):
+        #     break
 
-    video_captor.release()
-    cv2.destroyAllWindows()
+    # video_captor.release()
+    # cv2.destroyAllWindows()
