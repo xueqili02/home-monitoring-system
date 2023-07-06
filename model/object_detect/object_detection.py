@@ -40,12 +40,13 @@ def object_detection():
                 cv2.putText(img_rd, class_name, (x, y - 10), cv2.FONT_HERSHEY_PLAIN, 2, color, 2)
                 cv2.rectangle(img_rd, (x, y), (x + w, y + h), color, 5)
 
-        # Convert the frame to JPEG format
-        ret, jpeg = cv2.imencode('.jpg', img_rd)
-        frame_data = jpeg.tobytes()
-
-        yield (b'--frame\r\n'
-               b'Content-Type: image/jpeg\r\n\r\n' + frame_data + b'\r\n\r\n')
+        yield img_rd
+        # # Convert the frame to JPEG format
+        # ret, jpeg = cv2.imencode('.jpg', img_rd)
+        # frame_data = jpeg.tobytes()
+        #
+        # yield (b'--frame\r\n'
+        #        b'Content-Type: image/jpeg\r\n\r\n' + frame_data + b'\r\n\r\n')
 
 
 # def object_detect():
