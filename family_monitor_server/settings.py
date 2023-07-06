@@ -22,7 +22,8 @@ INSTALLED_APPS = [
     'user',
     'emotion',
     'microexpression',
-    'channels',
+    'service',
+    # 'channels',
     # 'daphne',
 
     'django.contrib.admin',

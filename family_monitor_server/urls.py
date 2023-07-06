@@ -22,5 +22,6 @@ urlpatterns = [
     path('recognition/', include("recognition.urls")),
     path('emotion/', include("emotion.urls")),
     path('microexpression/', include("microexpression.urls")),
+    path('service/', include("service.urls")),
     path('admin/', admin.site.urls)
 ]
