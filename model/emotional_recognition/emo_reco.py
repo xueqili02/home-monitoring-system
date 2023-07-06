@@ -25,8 +25,8 @@ def emo_reco():
     transform = transforms.ToTensor()
 
     while True:
-        _, frame = cam.read()
-        if _:
+        ret, frame = cam.read()
+        if ret:
             bBox = faceBox(frame)
             if len(bBox) > 0:
                 for box in bBox:
@@ -48,6 +48,5 @@ def emo_reco():
         #     break
     # cam.release()
     # cv2.destroyAllWindows()
-
 
 # emo_reco()
