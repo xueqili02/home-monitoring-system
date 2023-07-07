@@ -37,3 +37,10 @@ pip install -r requirements.txt
 ```bash
 将db_setting.cnf复制到项目根目录下
 ```
+
+### 模型
+将模型复制到指定目录下
+
+model_U.pth 放到 model/emotional_recognition/下
+
+model.zip解压后的四个文件，放到model/microexpression_recognition/model/下
