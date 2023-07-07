@@ -30,7 +30,7 @@ source ./venv/bin/activate
 
 #### requirements.txt一键安装，在上一步进入虚拟环境（venv）后，命令行运行下面的命令
 ```bash
-    pip install -r requirements.txt
+pip install -r requirements.txt
 ```
 
 [//]: # (#### 安装Django)
