@@ -2,10 +2,13 @@ import cv2
 import numpy as np
 import torch
 import torchvision.transforms as transforms
+import tensorflow as tf
 
 from django.http import StreamingHttpResponse
 from model.emotional_recognition.EMR import to_device, MERCnnModel, get_default_device
 from model.emotional_recognition.emo_reco import emotion_service
+from model.microexpression_recognition.demo import microexpression_service
+from model.microexpression_recognition.model import deepnn
 from model.object_detect.object_detection import object_service
 
 
@@ -28,12 +31,24 @@ def call_service(requests, obj, emotion, microexpression, face, caption):
     if caption == 1:
         print('caption')
 
-    def call():
-        cap = cv2.VideoCapture('rtmp://47.92.211.14:1935/live')
+    def frame_generator():
+        for frame in call(obj, emotion, microexpression, face, caption):
+            ret, jpeg = cv2.imencode('.jpg', frame)
+            frame_data = jpeg.tobytes()
 
-        '''
-            object recognition config
-        '''
+            yield (b'--frame\r\n'
+                   b'Content-Type: image/jpeg\r\n\r\n' + frame_data + b'\r\n\r\n')
+
+    return StreamingHttpResponse(frame_generator(), content_type='multipart/x-mixed-replace; boundary=frame')
+
+
+def call(obj, emotion, microexpression, face, caption):
+    cap = cv2.VideoCapture('rtmp://47.92.211.14:1935/live')
+
+    '''
+        object recognition config
+    '''
+    if obj == 1:
         # Set colors
         colors = []
         for i in range(91):
@@ -52,9 +67,10 @@ def call_service(requests, obj, emotion, microexpression, face, caption):
         object_model = cv2.dnn_DetectionModel(net)
         object_model.setInputParams(size=(320, 320), scale=1 / 255)
 
-        '''
-            emotion recognition config
-        '''
+    '''
+        emotion recognition config
+    '''
+    if emotion == 1:
         device = get_default_device()
         # Loading pretrained weights
         w = 'model/emotional_recognition/model_U.pth'
@@ -65,49 +81,59 @@ def call_service(requests, obj, emotion, microexpression, face, caption):
             emotion_model.load_state_dict(torch.load(w, map_location=torch.device('cuda')))  # for GPU
         transform = transforms.ToTensor()
 
-        '''
-            microexpression recognition config
-        '''
-        while True:
-            ret, frame = cap.read()
-            # import time
-            # start_time = time.time()
-            if obj == 1:
-                class_ids, scores, bboxes = object_service(frame, object_model)
-                for class_id, score, bbox in zip(class_ids, scores, bboxes):
-                    (x, y, w, h) = bbox
-                    class_name = classes[class_id]
-                    color = colors[class_id]
-                    if class_name in active_objects:
-                        cv2.putText(frame, class_name, (x, y - 10), cv2.FONT_HERSHEY_PLAIN, 2, color, 2)
-                        cv2.rectangle(frame, (x, y), (x + w, y + h), color, 5)
+    '''
+        microexpression recognition config
+    '''
+    if microexpression == 1:
+        tf.compat.v1.disable_eager_execution()
 
-            if emotion == 1:
-                if ret:
-                    prediction, x, y = emotion_service(frame, emotion_model, device, transform)
-                    if prediction is not None and x is not None and y is not None:
-                        cv2.putText(frame, prediction, (x, y), cv2.FONT_HERSHEY_COMPLEX, 1, (0, 0, 255))
+        face_x = tf.compat.v1.placeholder(tf.float32, [None, 2304])
+        y_conv = deepnn(face_x)
+        probs = tf.nn.softmax(y_conv)
 
-            # end_time = time.time()
-            # execution_time = end_time - start_time
-            # print(f"代码运行时间为：{execution_time} 秒")
+        # 加载模型
+        tf.compat.v1.disable_eager_execution()
+        saver = tf.compat.v1.train.Saver()
+        ckpt = tf.train.get_checkpoint_state('model/microexpression_recognition/model')
+        sess = tf.compat.v1.Session()
+        if ckpt and ckpt.model_checkpoint_path:
+            saver.restore(sess, ckpt.model_checkpoint_path)
 
-            if microexpression == 1:
-                print('call microexpression')
+    while True:
+        ret, frame = cap.read()
 
-            if face == 1:
-                print('call face')
+        if obj == 1:
+            class_ids, scores, bboxes = object_service(frame, object_model)
+            for class_id, score, bbox in zip(class_ids, scores, bboxes):
+                (x, y, w, h) = bbox
+                class_name = classes[class_id]
+                color = colors[class_id]
+                if class_name in active_objects:
+                    cv2.putText(frame, class_name, (x, y - 10), cv2.FONT_HERSHEY_PLAIN, 2, color, 2)
+                    cv2.rectangle(frame, (x, y), (x + w, y + h), color, 5)
 
-            if caption == 1:
-                print('call caption')
+        if emotion == 1:
+            if ret:
+                prediction, x, y, w, h = emotion_service(frame, emotion_model, device, transform)
+                if prediction is not None and x is not None and y is not None:
+                    cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
+                    cv2.putText(frame, prediction, (x, y), cv2.FONT_HERSHEY_COMPLEX, 1, (0, 0, 255))
 
-            yield frame
+        if microexpression == 1:
+            result, EMOTIONS = microexpression_service(frame, sess, probs, face_x)
+            if result is not None:
+                for index, m_emotion in enumerate(EMOTIONS):
+                    # 将七种微表情的文字添加到图片中
+                    cv2.putText(frame, m_emotion, (10, index * 20 + 20), cv2.FONT_HERSHEY_PLAIN, 1, (0, 255, 0), 1)
+                    # 将微表情的概率用矩形表现出来
+                    cv2.rectangle(frame, (130, index * 20 + 10),
+                                  (130 + int(result[0][index] * 100), (index + 1) * 20 + 4),
+                                  (255, 0, 0), -1)
 
-    def frame_generator():
-        for frame in call():
-            ret, jpeg = cv2.imencode('.jpg', frame)
-            frame_data = jpeg.tobytes()
+        if face == 1:
+            print('call face')
 
-            yield (b'--frame\r\n'
-                   b'Content-Type: image/jpeg\r\n\r\n' + frame_data + b'\r\n\r\n')
-    return StreamingHttpResponse(frame_generator(), content_type='multipart/x-mixed-replace; boundary=frame')
+        if caption == 1:
+            print('call caption')
+
+        yield frame

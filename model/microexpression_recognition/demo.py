@@ -87,3 +87,14 @@ def demo(modelPath, showBox=True):
 
     # video_captor.release()
     # cv2.destroyAllWindows()
+
+def microexpression_service(frame, sess, probs, face_x, showBox=True):
+    result = None
+    detected_face, face_coor = format_image(frame)
+    if showBox and face_coor is not None:
+        # 获取人脸的坐标,并用矩形框出
+        # [x, y, w, h] = face_coor
+        # cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 255, 0), 2)
+        tensor = image_to_tensor(detected_face)
+        result = sess.run(probs, feed_dict={face_x: tensor})
+    return result, EMOTIONS

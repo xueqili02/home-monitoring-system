@@ -56,7 +56,7 @@ def emotion_service(frame, model, device, transform):
     if len(bBox) > 0:
         for box in bBox:
             x, y, w, h = box
-            cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
+            # cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
             faceExp = frame[y:y + h, x:x + w]
             try:  # sometime crashes due to corrupted/empty frame
                 faceExpResized = cv2.resize(faceExp, (80, 80))
@@ -64,5 +64,5 @@ def emotion_service(frame, model, device, transform):
                 return None, None, None
             faceExpResizedTensor = transform(faceExpResized)
             prediction = predict_image(faceExpResizedTensor, model, device)
-            return prediction, x, y
-    return None, None, None
+            return prediction, x, y, w, h
+    return None, None, None, None, None
