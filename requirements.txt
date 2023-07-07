@@ -1,0 +1,15 @@
+Django==4.2.3
+django-cors-headers==4.1.0
+djangorestframework==3.14.0
+keras==2.12.0
+matplotlib==3.7.1
+numpy==1.23.5
+opencv-contrib-python==4.8.0.74
+opencv-python==4.8.0.74
+pandas==2.0.3
+PyMySQL==1.1.0
+redis==4.6.0
+requests==2.31.0
+tensorflow==2.12.0
+torch==2.0.1
+torchvision==0.15.2
