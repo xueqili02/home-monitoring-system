@@ -22,5 +22,5 @@ def object_recognition(request):
 
             yield (b'--frame\r\n'
                    b'Content-Type: image/jpeg\r\n\r\n' + frame_data + b'\r\n\r\n')
-    response = StreamingHttpResponse(frame_generator(), content_type='multipart/x-mixed-replace; boundary=frame')
-    return response
+    return StreamingHttpResponse(frame_generator(), content_type='multipart/x-mixed-replace; boundary=frame')
+

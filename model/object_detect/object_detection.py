@@ -46,3 +46,8 @@ def object_detection():
         #
         # yield (b'--frame\r\n'
         #        b'Content-Type: image/jpeg\r\n\r\n' + frame_data + b'\r\n\r\n')
+
+def object_service(frame, model):
+
+    (class_ids, scores, bboxes) = model.detect(frame, confThreshold=0.3, nmsThreshold=.4)
+    return class_ids, scores, bboxes
