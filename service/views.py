@@ -20,16 +20,6 @@ def call_service(requests, obj, emotion, microexpression, face, caption):
     microexpression = int(microexpression)
     face = int(face)
     caption = int(caption)
-    if obj == 1:
-        print('obj')
-    if emotion == 1:
-        print('emotion')
-    if microexpression == 1:
-        print('microexpression')
-    if face == 1:
-        print('face')
-    if caption == 1:
-        print('caption')
 
     def frame_generator():
         for frame in call(obj, emotion, microexpression, face, caption):
@@ -99,8 +89,12 @@ def call(obj, emotion, microexpression, face, caption):
         if ckpt and ckpt.model_checkpoint_path:
             saver.restore(sess, ckpt.model_checkpoint_path)
 
+    cnt = 0
     while True:
         ret, frame = cap.read()
+        cnt = cnt + 1
+        if cnt % 2 == 0 or ret is False:
+            continue
 
         if obj == 1:
             class_ids, scores, bboxes = object_service(frame, object_model)
