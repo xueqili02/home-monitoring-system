@@ -14,15 +14,14 @@ from model.object_detect.object_detection import object_service
 
 # Create your views here.
 
-def call_service(requests, obj, emotion, microexpression, face, caption):
+def call_service(requests, obj, emotion, microexpression, face):
     obj = int(obj)
     emotion = int(emotion)
     microexpression = int(microexpression)
     face = int(face)
-    caption = int(caption)
 
     def frame_generator():
-        for frame in call(obj, emotion, microexpression, face, caption):
+        for frame in call(obj, emotion, microexpression, face):
             ret, jpeg = cv2.imencode('.jpg', frame)
             frame_data = jpeg.tobytes()
 
@@ -32,7 +31,7 @@ def call_service(requests, obj, emotion, microexpression, face, caption):
     return StreamingHttpResponse(frame_generator(), content_type='multipart/x-mixed-replace; boundary=frame')
 
 
-def call(obj, emotion, microexpression, face, caption):
+def call(obj, emotion, microexpression, face):
     cap = cv2.VideoCapture('rtmp://47.92.211.14:1935/live')
 
     '''
@@ -126,8 +125,5 @@ def call(obj, emotion, microexpression, face, caption):
 
         if face == 1:
             print('call face')
-
-        if caption == 1:
-            print('call caption')
 
         yield frame
