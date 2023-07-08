@@ -97,4 +97,12 @@ def microexpression_service(frame, sess, probs, face_x, showBox=True):
         # cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 255, 0), 2)
         tensor = image_to_tensor(detected_face)
         result = sess.run(probs, feed_dict={face_x: tensor})
-    return result, EMOTIONS
+    if result is not None:
+        for index, m_emotion in enumerate(EMOTIONS):
+            # 将七种微表情的文字添加到图片中
+            cv2.putText(frame, m_emotion, (10, index * 20 + 20), cv2.FONT_HERSHEY_PLAIN, 1, (0, 255, 0), 1)
+            # 将微表情的概率用矩形表现出来
+            cv2.rectangle(frame, (130, index * 20 + 10),
+                          (130 + int(result[0][index] * 100), (index + 1) * 20 + 4),
+                          (255, 0, 0), -1)
+    return frame

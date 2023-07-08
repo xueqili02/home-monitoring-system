@@ -61,8 +61,9 @@ def emotion_service(frame, model, device, transform):
             try:  # sometime crashes due to corrupted/empty frame
                 faceExpResized = cv2.resize(faceExp, (80, 80))
             except:
-                return None, None, None, None, None
+                return frame
             faceExpResizedTensor = transform(faceExpResized)
             prediction = predict_image(faceExpResizedTensor, model, device)
-            return prediction, x, y, w, h
-    return None, None, None, None, None
+            cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
+            cv2.putText(frame, prediction, (x, y), cv2.FONT_HERSHEY_COMPLEX, 1, (0, 0, 255))
+    return frame

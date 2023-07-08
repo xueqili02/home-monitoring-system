@@ -5,8 +5,8 @@ import os
 face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_alt.xml')
 
 # 输入和输出目录
-input_dir = 'C://Users//13718//2022-2023-2-bjtu//newf//lxq'
-output_dir = 'C://Users//13718//2022-2023-2-bjtu//newf//lxqnew'
+input_dir = 'C://Users//HP//Desktop//PracticalTraining//family_monitor_server//model//face_recognition//face1'
+output_dir = 'C://Users//HP//Desktop//PracticalTraining//family_monitor_server//model//face_recognition//facelow'
 output_size = (160, 160)  # 目标像素大小
 
 # 确保输出目录存在

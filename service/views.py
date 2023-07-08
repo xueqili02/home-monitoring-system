@@ -1,12 +1,15 @@
 import cv2
+import face_recognition
 import numpy as np
 import torch
 import torchvision.transforms as transforms
 import tensorflow as tf
+import glob
 
 from django.http import StreamingHttpResponse
 from model.emotional_recognition.EMR import to_device, MERCnnModel, get_default_device
 from model.emotional_recognition.emo_reco import emotion_service
+from model.face_recognition.fr_video import face_service
 from model.microexpression_recognition.demo import microexpression_service
 from model.microexpression_recognition.model import deepnn
 from model.object_detect.object_detection import object_service
@@ -88,42 +91,49 @@ def call(obj, emotion, microexpression, face):
         if ckpt and ckpt.model_checkpoint_path:
             saver.restore(sess, ckpt.model_checkpoint_path)
 
+    '''
+        face recognition config
+    '''
+    if face == 1:
+        # Load the known face encodings and their corresponding labels
+        known_face_encodings = []
+        known_face_labels = []
+
+        # Folder containing the known face images
+        known_faces_folder = "model/face_recognition/facelow"
+
+        # Retrieve the file paths of the images within the folder
+        image_paths = glob.glob(known_faces_folder + "/*.jpg")  # Update the file extension if necessary
+
+        for image_path in image_paths:
+            # Load the image and encode the face
+            image = face_recognition.load_image_file(image_path)
+            face_encoding = face_recognition.face_encodings(image)[0]
+            # print(image_path)
+            # Extract the label from the file name (assuming the file name is in the format "label.jpg")
+            label = image_path.split("/")[-1].split(".")[0]
+
+            # Append the encoding and label to the known faces list
+            known_face_encodings.append(face_encoding)
+            known_face_labels.append(label)
+
     cnt = 0
     while True:
         ret, frame = cap.read()
         cnt = cnt + 1
-        if cnt % 2 == 0 or ret is False:
+        if cnt % 4 != 0 or ret is False:
             continue
 
         if obj == 1:
-            class_ids, scores, bboxes = object_service(frame, object_model)
-            for class_id, score, bbox in zip(class_ids, scores, bboxes):
-                (x, y, w, h) = bbox
-                class_name = classes[class_id]
-                color = colors[class_id]
-                if class_name in active_objects:
-                    cv2.putText(frame, class_name, (x, y - 10), cv2.FONT_HERSHEY_PLAIN, 2, color, 2)
-                    cv2.rectangle(frame, (x, y), (x + w, y + h), color, 5)
+            frame = object_service(frame, object_model, classes, colors, active_objects)
 
         if emotion == 1:
-            if ret:
-                prediction, x, y, w, h = emotion_service(frame, emotion_model, device, transform)
-                if prediction is not None and x is not None and y is not None:
-                    cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
-                    cv2.putText(frame, prediction, (x, y), cv2.FONT_HERSHEY_COMPLEX, 1, (0, 0, 255))
+            frame = emotion_service(frame, emotion_model, device, transform)
 
         if microexpression == 1:
-            result, EMOTIONS = microexpression_service(frame, sess, probs, face_x)
-            if result is not None:
-                for index, m_emotion in enumerate(EMOTIONS):
-                    # 将七种微表情的文字添加到图片中
-                    cv2.putText(frame, m_emotion, (10, index * 20 + 20), cv2.FONT_HERSHEY_PLAIN, 1, (0, 255, 0), 1)
-                    # 将微表情的概率用矩形表现出来
-                    cv2.rectangle(frame, (130, index * 20 + 10),
-                                  (130 + int(result[0][index] * 100), (index + 1) * 20 + 4),
-                                  (255, 0, 0), -1)
+            frame = microexpression_service(frame, sess, probs, face_x)
 
         if face == 1:
-            print('call face')
+            frame = face_service(frame, known_face_encodings, known_face_labels)
 
         yield frame

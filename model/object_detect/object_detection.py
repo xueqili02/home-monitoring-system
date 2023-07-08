@@ -47,7 +47,13 @@ def object_detection():
         # yield (b'--frame\r\n'
         #        b'Content-Type: image/jpeg\r\n\r\n' + frame_data + b'\r\n\r\n')
 
-def object_service(frame, model):
-
+def object_service(frame, model, classes, colors, active_objects):
     (class_ids, scores, bboxes) = model.detect(frame, confThreshold=0.3, nmsThreshold=.4)
-    return class_ids, scores, bboxes
+    for class_id, score, bbox in zip(class_ids, scores, bboxes):
+        (x, y, w, h) = bbox
+        class_name = classes[class_id]
+        color = colors[class_id]
+        if class_name in active_objects:
+            cv2.putText(frame, class_name, (x, y - 10), cv2.FONT_HERSHEY_PLAIN, 2, color, 2)
+            cv2.rectangle(frame, (x, y), (x + w, y + h), color, 5)
+    return frame
