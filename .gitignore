@@ -10,3 +10,5 @@ __pycache__/
 /model/microexpression_recognition/model/emotion_model-30001.index
 /model/microexpression_recognition/model/emotion_model-30001.meta
 /templates/
+/*/migrations/*
+!/*/migrations/__init__.py
