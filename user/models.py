@@ -7,3 +7,4 @@ class User(models.Model):
     password = models.CharField("密码", max_length=18, null=False)
     login_time = models.DateTimeField("登录时间", null=True)
     email = models.CharField("邮箱", max_length=40, null=False)
+    camera_urls = models.CharField("摄像头url", max_length=256, default="", null=False)

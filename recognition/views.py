@@ -1,13 +1,3 @@
-# from django.shortcuts import render
-#
-#
-# def object_detection(request, video_name):
-#     return render(request, "index.html", {"video_name": video_name})
-
-from django.shortcuts import render
-
-# Create your views here.
-
 import cv2
 
 from django.http import StreamingHttpResponse

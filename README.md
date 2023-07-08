@@ -33,10 +33,24 @@ source ./venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### 数据库连接配置
+### 数据库
 ```bash
 将db_setting.cnf复制到项目根目录下
 ```
+
+[//]: # (### 数据库迁移（对数据模型的修改）)
+
+[//]: # (```bash)
+
+[//]: # (py manage.py makemigrations)
+
+[//]: # (```)
+
+[//]: # (```bash)
+
+[//]: # (py manage.py migrate)
+
+[//]: # (```)
 
 ### 模型
 将模型复制到指定目录下
