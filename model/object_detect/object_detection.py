@@ -1,7 +1,7 @@
 import numpy as np
 import cv2
 
-def object_detection():
+def object_detection(url):
     # Set colors
     colors = []
     for i in range(91):
@@ -24,7 +24,7 @@ def object_detection():
     active_objects = ['person', 'cat', 'dog']
 
     # Local camera /  fps: 25
-    cap = cv2.VideoCapture('rtmp://47.92.211.14:1935/live')
+    cap = cv2.VideoCapture(url)
 
     while True:
         ret, frame = cap.read()
