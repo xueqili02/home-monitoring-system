@@ -48,11 +48,6 @@ def first_image(request):
     ret, frame = cap.read()
     ret, jpeg = cv2.imencode('.jpg', frame)
     frame_data = jpeg.tobytes()
-    # frame_data = None
-    # for frame in object_detection(url):
-    #     ret, jpeg = cv2.imencode('.jpg', frame)
-    #     frame_data = jpeg.tobytes()
-    #     break
     cap.release()
 
     return HttpResponse(b'--frame\r\nContent-Type: image/jpeg\r\n\r\n' + frame_data + b'\r\n\r\n',
