@@ -22,8 +22,20 @@ def register(request):
     return HttpResponse(user)
 
 def login(request):
-
-    return HttpResponse("blabla") # 成功 or 失败
+    # username = None
+    user = None
+    if request.method == 'POST':
+        user = json.loads(request.body)
+# print(new_user)
+        username = user.get('username')
+        password = user.get('password')
+        # 这里继续添加用户注册需要的属性，邮箱等等
+        # print(username, password)
+        getuser = User.objects.filter(username=username, password=password) # 这里添加向User表里insert需要的属性
+        print(getuser)
+        if not getuser.exists():
+            return HttpResponse("failure")
+    return HttpResponse("success") # 成功 or 失败
 
 
 
