@@ -1,6 +1,8 @@
 import numpy as np
 import cv2
 
+ltx, lty, rbx, rby = 0., 0., 1., 1.
+
 def object_detection(url):
     # Set colors
     colors = []
@@ -25,14 +27,25 @@ def object_detection(url):
 
     # Local camera /  fps: 25
     cap = cv2.VideoCapture(url)
-
+    width = cap.get(cv2.CAP_PROP_FRAME_WIDTH)
+    height = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
     while True:
         ret, frame = cap.read()
+        if ret is False:
+            continue
+
+        # set coordinate
+        range_frame = frame[int(height * lty) : int(height * rby), int(width * ltx) : int(width * rbx)]
 
         # Object Detection
-        (class_ids, scores, bboxes) = model.detect(frame, confThreshold=0.3, nmsThreshold=.4)
+        (class_ids, scores, bboxes) = model.detect(range_frame, confThreshold=0.3, nmsThreshold=.4)
         for class_id, score, bbox in zip(class_ids, scores, bboxes):
             (x, y, w, h) = bbox
+
+            # set the new coordinate
+            x = int(width * ltx) + x
+            y = int(height * lty) + y
+
             class_name = classes[class_id]
             color = colors[class_id]
             if class_name in active_objects:
@@ -57,3 +70,7 @@ def object_service(frame, model, classes, colors, active_objects):
             cv2.putText(frame, class_name, (x, y - 10), cv2.FONT_HERSHEY_PLAIN, 2, color, 2)
             cv2.rectangle(frame, (x, y), (x + w, y + h), color, 5)
     return frame
+
+def set_coordinate(p_ltx, p_lty, p_rbx, p_rby):
+    global ltx, lty, rbx, rby
+    ltx, lty, rbx, rby = p_ltx, p_lty, p_rbx, p_rby
