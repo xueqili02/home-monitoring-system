@@ -1,7 +1,10 @@
+import sys
+
 import numpy as np
 import cv2
 
 ltx, lty, rbx, rby = 0., 0., 1., 1.
+
 
 def object_detection(url):
     # Set colors
@@ -35,7 +38,11 @@ def object_detection(url):
             continue
 
         # set coordinate
-        range_frame = frame[int(height * lty) : int(height * rby), int(width * ltx) : int(width * rbx)]
+        range_frame = frame[int(height * lty): int(height * rby), int(width * ltx): int(width * rbx)]
+        if abs(ltx - 0) > 1e-6 or abs(lty - 0) > 1e-6 or \
+                abs(rbx - 1) > 1e-6 or abs(rby - 1) > 1e-6:
+            cv2.rectangle(frame, (int(width * ltx), int(height * lty)), (int(width * rbx), int(height * rby)),
+                          (0, 255, 0), thickness=2, lineType=cv2.LINE_AA)
 
         # Object Detection
         (class_ids, scores, bboxes) = model.detect(range_frame, confThreshold=0.3, nmsThreshold=.4)
@@ -60,6 +67,7 @@ def object_detection(url):
         # yield (b'--frame\r\n'
         #        b'Content-Type: image/jpeg\r\n\r\n' + frame_data + b'\r\n\r\n')
 
+
 def object_service(frame, model, classes, colors, active_objects):
     (class_ids, scores, bboxes) = model.detect(frame, confThreshold=0.3, nmsThreshold=.4)
     for class_id, score, bbox in zip(class_ids, scores, bboxes):
@@ -70,6 +78,7 @@ def object_service(frame, model, classes, colors, active_objects):
             cv2.putText(frame, class_name, (x, y - 10), cv2.FONT_HERSHEY_PLAIN, 2, color, 2)
             cv2.rectangle(frame, (x, y), (x + w, y + h), color, 5)
     return frame
+
 
 def set_coordinate(p_ltx, p_lty, p_rbx, p_rby):
     global ltx, lty, rbx, rby
