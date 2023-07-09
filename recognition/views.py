@@ -7,7 +7,7 @@ from model.object_detect.object_detection import object_detection, set_coordinat
 
 def object_recognition(request):
     def frame_generator():
-        for frame in object_detection(0):
+        for frame in object_detection('rtmp://47.92.211.14:1935/live'):
             ret, jpeg = cv2.imencode('.jpg', frame)
             frame_data = jpeg.tobytes()
 
@@ -35,4 +35,20 @@ def range_coordinate(request):
     rbx = coordinate.get('rbx')  # right bottom
     rby = coordinate.get('rby')
     set_coordinate(ltx, lty, rbx, rby)
-    return HttpResponse("success")
+    return HttpResponse(json.dumps({"code": 0, "message": "success", "data": []}))
+
+def first_image(request):
+    url = request.GET.get("camera_url")
+    cap = cv2.VideoCapture(url)
+    ret, frame = cap.read()
+    ret, jpeg = cv2.imencode('.jpg', frame)
+    frame_data = jpeg.tobytes()
+    # frame_data = None
+    # for frame in object_detection(url):
+    #     ret, jpeg = cv2.imencode('.jpg', frame)
+    #     frame_data = jpeg.tobytes()
+    #     break
+    cap.release()
+
+    return HttpResponse(b'--frame\r\nContent-Type: image/jpeg\r\n\r\n' + frame_data + b'\r\n\r\n',
+                        content_type='multipart/x-mixed-replace; boundary=frame')
