@@ -3,8 +3,8 @@ import sys
 import numpy as np
 import cv2
 
-ltx, lty, rbx, rby = 0., 0., 1., 1.
-
+# ltx, lty, rbx, rby = 0., 0., 1., 1.
+g_camera_ranges = {}
 
 def object_detection(url):
     # Set colors
@@ -36,6 +36,12 @@ def object_detection(url):
         ret, frame = cap.read()
         if ret is False:
             continue
+
+        camera_range = g_camera_ranges.get(url)
+        if camera_range is None:
+            ltx, lty, rbx, rby = 0., 0., 1., 1.
+        else:
+            (ltx, lty, rbx, rby) = camera_range
 
         # set coordinate
         range_frame = frame[int(height * lty): int(height * rby), int(width * ltx): int(width * rbx)]
@@ -80,6 +86,8 @@ def object_service(frame, model, classes, colors, active_objects):
     return frame
 
 
-def set_coordinate(p_ltx, p_lty, p_rbx, p_rby):
-    global ltx, lty, rbx, rby
-    ltx, lty, rbx, rby = p_ltx, p_lty, p_rbx, p_rby
+def set_coordinate(camera_ranges):
+    # global ltx, lty, rbx, rby
+    # ltx, lty, rbx, rby = p_ltx, p_lty, p_rbx, p_rby
+    global g_camera_ranges
+    g_camera_ranges = camera_ranges

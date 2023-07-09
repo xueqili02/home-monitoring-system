@@ -4,6 +4,7 @@ import cv2
 from django.http import StreamingHttpResponse, HttpResponse
 from model.object_detect.object_detection import object_detection, set_coordinate
 
+camera_ranges = {}
 
 def object_recognition(request):
     def frame_generator():
@@ -30,11 +31,15 @@ def camera(request):
 # 视频范围选择框
 def range_coordinate(request):
     coordinate = json.loads(request.body)
+    camera_url = coordinate.get('url')
     ltx = coordinate.get('ltx')  # left top
     lty = coordinate.get('lty')
     rbx = coordinate.get('rbx')  # right bottom
     rby = coordinate.get('rby')
-    set_coordinate(ltx, lty, rbx, rby)
+
+    camera_ranges[camera_url] = (ltx, lty, rbx, rby)
+
+    set_coordinate(camera_ranges)
     return HttpResponse(json.dumps({"code": 0, "message": "success", "data": []}))
 
 def first_image(request):
