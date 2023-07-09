@@ -33,9 +33,10 @@ def object_detection(url):
     width = cap.get(cv2.CAP_PROP_FRAME_WIDTH)
     height = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
     while True:
-        ret, frame = cap.read()
+        ret = cap.grab()
         if ret is False:
             continue
+        _, frame = cap.retrieve()
 
         camera_range = g_camera_ranges.get(url)
         if camera_range is None:

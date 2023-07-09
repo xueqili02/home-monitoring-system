@@ -29,13 +29,16 @@ def call_service(requests, obj, emotion, microexpression, face):
 
 
 def call(obj, emotion, microexpression, face):
-    cap = cv2.VideoCapture('rtmp://47.92.211.14:1935/live')
+    cap = cv2.VideoCapture('rtmp://47.92.211.14:1935/live/1')
     cnt = 0
     while True:
-        ret, frame = cap.read()
         cnt = cnt + 1
-        if cnt % 4 != 0 or ret is False:
+        ret = cap.grab()
+        if ret is False:
             continue
+        if cnt % 4 != 0:
+            continue
+        _, frame = cap.retrieve()
 
         if obj == 1:
             frame = object_service(frame, object_model, classes, colors, active_objects)
