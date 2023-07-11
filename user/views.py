@@ -115,7 +115,7 @@ def login(request):
                     request.session['user_name'] = user.username
                     message = 'success'
                     response = {
-                        'code': 403,
+                        'code': 200,
                         'message': message,
                         'data': {'username': user.username,
                                  'email': user.email,
@@ -136,6 +136,23 @@ def login(request):
     response = {
         'code': 403,
         'message': 'please use post',
+        'data': None
+    }
+    return HttpResponse(json.dumps(response))
+
+
+def logout(request):
+    if not request.session.get('is_login', None):  # 如果本来就未登录，也就没有登出一说
+        response = {
+            'code': 403,
+            'message': 'you are not logged in',
+            'data': None
+        }
+        return HttpResponse(json.dumps(response))
+    request.session.flush()  # 将session中的所有内容全部清空
+    response = {
+        'code': 200,
+        'message': 'success',
         'data': None
     }
     return HttpResponse(json.dumps(response))
