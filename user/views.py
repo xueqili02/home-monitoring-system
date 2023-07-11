@@ -123,9 +123,9 @@ def login(request):
                     }
                     return HttpResponse(json.dumps(response))
                 else:
-                    message = "password incorrect！"
+                    message = "username or password incorrect"
             except:
-                message = "use does not exist"
+                message = "username or password incorrect"
         response = {
             'code': 403,
             'message': message,
