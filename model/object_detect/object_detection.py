@@ -1,10 +1,8 @@
-import sys
-
 import numpy as np
 import cv2
 
-# ltx, lty, rbx, rby = 0., 0., 1., 1.
 g_camera_ranges = {}
+g_first_image = {}
 
 def object_detection(url):
     # Set colors
@@ -32,10 +30,22 @@ def object_detection(url):
     cap = cv2.VideoCapture(url)
     width = cap.get(cv2.CAP_PROP_FRAME_WIDTH)
     height = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
+
+    # store the first image
     while True:
-        ret, frame = cap.read()
+        ret = cap.grab()
+        if ret is True:
+            ret, frame = cap.read()
+            ret, jpeg = cv2.imencode('.jpg', frame)
+            frame_data = jpeg.tobytes()
+            g_first_image[url] = frame_data
+            break
+
+    while True:
+        ret = cap.grab()
         if ret is False:
             continue
+        _, frame = cap.retrieve()
 
         camera_range = g_camera_ranges.get(url)
         if camera_range is None:
@@ -87,7 +97,8 @@ def object_service(frame, model, classes, colors, active_objects):
 
 
 def set_coordinate(camera_ranges):
-    # global ltx, lty, rbx, rby
-    # ltx, lty, rbx, rby = p_ltx, p_lty, p_rbx, p_rby
     global g_camera_ranges
     g_camera_ranges = camera_ranges
+
+def get_first_image(url):
+    return g_first_image.get(url)

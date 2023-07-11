@@ -2,7 +2,7 @@ import json
 import cv2
 
 from django.http import StreamingHttpResponse, HttpResponse
-from model.object_detect.object_detection import object_detection, set_coordinate
+from model.object_detect.object_detection import object_detection, set_coordinate, get_first_image
 
 camera_ranges = {}
 
@@ -44,16 +44,7 @@ def range_coordinate(request):
 
 def first_image(request):
     url = request.GET.get("camera_url")
-    cap = cv2.VideoCapture(url)
-    ret, frame = cap.read()
-    ret, jpeg = cv2.imencode('.jpg', frame)
-    frame_data = jpeg.tobytes()
-    # frame_data = None
-    # for frame in object_detection(url):
-    #     ret, jpeg = cv2.imencode('.jpg', frame)
-    #     frame_data = jpeg.tobytes()
-    #     break
-    cap.release()
+    frame_data = get_first_image(url)
 
     return HttpResponse(b'--frame\r\nContent-Type: image/jpeg\r\n\r\n' + frame_data + b'\r\n\r\n',
                         content_type='multipart/x-mixed-replace; boundary=frame')
