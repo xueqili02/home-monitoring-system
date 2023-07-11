@@ -12,3 +12,4 @@ __pycache__/
 /templates/
 /*/migrations/*
 !/*/migrations/__init__.py
+/resource/detection_image/*.jpg
