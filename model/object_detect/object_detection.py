@@ -7,7 +7,7 @@ import cv2
 g_camera_ranges = {}
 g_first_image = {}
 g_active_objects = ['person', 'cat', 'dog']
-IMAGE_FREQ = 200
+IMAGE_FREQ = 400
 g_record_list = []
 
 def object_detection(url):

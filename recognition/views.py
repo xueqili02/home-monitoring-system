@@ -1,3 +1,4 @@
+import ast
 import json
 import cv2
 
@@ -21,8 +22,23 @@ def object_recognition(request):
                    b'Content-Type: image/jpeg\r\n\r\n' + frame_data + b'\r\n\r\n')
     return StreamingHttpResponse(frame_generator(), content_type='multipart/x-mixed-replace; boundary=frame')
 
-def camera(request, uid):
-    url = request.GET.get("camera_url")
+def camera(request, uid, cid):
+    try:
+        user = User.objects.get(id=uid)
+        camera_url_dict = ast.literal_eval(user.camera_urls)
+        url = ''
+        if int(cid) == 1:
+            url = camera_url_dict.get('url1')
+        elif int(cid) == 2:
+            url = camera_url_dict.get('url2')
+        elif int(cid) == 3:
+            url = camera_url_dict.get('url3')
+        elif int(cid) == 4:
+            url = camera_url_dict.get('url4')
+        else:
+            return HttpResponse(json.dumps({'code': 403, 'message': 'camera url does not exist', 'data': None}))
+    except User.DoesNotExist:
+        return HttpResponse(json.dumps({'code': 403, 'message': 'user does not exist', 'data': None}))
 
     def frame_generator():
         for frame, cnt in object_detection(url):
@@ -30,10 +46,10 @@ def camera(request, uid):
             frame_data = jpeg.tobytes()
 
             if cnt is not None:
-                user = User.objects.filter(id=uid)
-                if user.exists():
+                user_fk = User.objects.filter(id=uid)
+                if user_fk.exists():
                     detection_record = get_record()
-                    Detection.objects.create(uid=user[0], time=detection_record.get('time'),
+                    Detection.objects.create(uid=user_fk[0], time=detection_record.get('time'),
                                              number=detection_record.get('number'),
                                              camera_url=detection_record.get('camera_url'),
                                              path=detection_record.get('path'))
@@ -86,3 +102,19 @@ def object_image(request):
     ret, jpg = cv2.imencode('.jpg', image)
     frame_data = jpg.tobytes()
     return HttpResponse(frame_data, content_type='image/jpeg')
+
+def camera_url(request):
+    body = json.loads(request.body)
+    uid = body.get('uid')
+    url1 = body.get('url1')
+    url2 = body.get('url2')
+    url3 = body.get('url3')
+    url4 = body.get('url4')
+    camera_url_dict = {'url1': url1, 'url2': url2, 'url3': url3, 'url4': url4}
+    try:
+        user = User.objects.get(id=uid)
+        user.camera_urls = camera_url_dict
+        user.save()
+        return HttpResponse(json.dumps({'code': 200, 'message': 'success', 'data': None}))
+    except User.DoesNotExist:
+        return HttpResponse(json.dumps({'code': 403, 'message': 'user does not exist', 'data': None}))
