@@ -6,7 +6,7 @@ import numpy as np
 from time import sleep
 
 
-def get_encoded_faces():
+def get_encoded_faces(face_image_path):
     """
     looks through the faces folder and encodes all
     the faces
@@ -15,10 +15,10 @@ def get_encoded_faces():
     """
     encoded = {}
 
-    for dirpath, dnames, fnames in os.walk("facelow"):
+    for dirpath, dnames, fnames in os.walk(face_image_path):
         for f in fnames:
             if f.endswith(".jpg") or f.endswith(".png"):
-                face = fr.load_image_file("facelow/" + f)
+                face = fr.load_image_file(face_image_path + f)
                 encoding = fr.face_encodings(face)[0]
                 encoded[f.split(".")[0]] = encoding
 
@@ -35,13 +35,13 @@ def unknown_image_encoded(img):
     return encoding
 
 
-def classify_face(im):
+def classify_face(pil_image, face_image_path):
 
-    faces = get_encoded_faces()
+    faces = get_encoded_faces(face_image_path)
     faces_encoded = list(faces.values())
     known_face_names = list(faces.keys())
 
-    img = cv2.imread(im, 1)
+    img = cv2.cvtColor(np.array(pil_image), cv2.COLOR_RGB2BGR) # convert image from pillow format to cv2 format
     face_locations = face_recognition.face_locations(img)
     unknown_face_encodings = face_recognition.face_encodings(img, face_locations)
 
@@ -63,6 +63,4 @@ def classify_face(im):
     return face_names
 
 
-print(classify_face("Lkj.jpg"))
-
-
+# print(classify_face("Lkj.jpg"))
