@@ -1,37 +1,43 @@
+import datetime
+import time
 import cv2
 import face_recognition
-import glob
 import numpy as np
 
-def fr():
-    # Load the known face encodings and their corresponding labels
-    known_face_encodings = []
-    known_face_labels = []
+from queue import Queue
 
-    # Folder containing the known face images
-    known_faces_folder = "facelow"
+from service.preload import known_face_encodings, known_face_labels
 
-    # Retrieve the file paths of the images within the folder
-    image_paths = glob.glob(known_faces_folder + "/*.jpg")  # Update the file extension if necessary
+INTRUSION_INTERVAL = 30.0
+MAX_QUEUE_SIZE = 30
+MAX_VIDEO_QUEUE_SIZE = 500
 
-    for image_path in image_paths:
-        # Load the image and encode the face
-        image = face_recognition.load_image_file(image_path)
-        face_encoding = face_recognition.face_encodings(image)[0]
-        print(image_path)
-        # Extract the label from the file name (assuming the file name is in the format "label.jpg")
-        label = image_path.split("/")[-1].split(".")[0]
-
-        # Append the encoding and label to the known faces list
-        known_face_encodings.append(face_encoding)
-        known_face_labels.append(label)
-
+def fr(url, uid):
     # Initialize the video capture
-    video_capture = cv2.VideoCapture(0)
+    cap = cv2.VideoCapture(url)
+    # 获取视频的帧率和尺寸
+    fps = cap.get(cv2.CAP_PROP_FPS)
+    width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+    height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
 
+    cnt = 0
+    queue = Queue()
+    queue.maxsize = MAX_QUEUE_SIZE
+    unknown_cnt = 0
+    last_intrusion_time = time.time()
+    intrusion_flag = False
+    video_queue = Queue()
     while True:
+        cnt = cnt + 1
         # Capture frame-by-frame
-        ret, frame = video_capture.read()
+        ret = cap.grab()
+        if ret is False:
+            continue
+        if cnt % 5 != 0:
+            _, frame = cap.retrieve()
+            video_queue.put(frame)
+            continue
+        _, frame = cap.retrieve()
 
         rgb_frame = np.ascontiguousarray(frame[:, :, ::-1])
         # Find all face locations and encodings in the current frame
@@ -47,17 +53,34 @@ def fr():
             label = "Unknown"
             # print(matches)
             # Check if there is a match in the known faces
-            if True in matches:
-                matched_indices = [i for i, match in enumerate(matches) if match]
 
-                face_distances = face_recognition.face_distance(known_face_encodings, face_encoding)
-
-
-                # best_match_index = matched_indices[np.argmin(face_distances)]
-                best_match_index = np.argmin(face_distances)
+            threshold = 0.4  # 调整阈值
+            # use the known face with the smallest distance to the new face
+            face_distances = face_recognition.face_distance(known_face_encodings, face_encoding)
+            best_match_index = np.argmin(face_distances)
+            if face_distances[best_match_index] < threshold:
                 label = known_face_labels[best_match_index]
-
+                if queue.full():
+                    item = queue.get()
+                    if item == 'Unknown':
+                        unknown_cnt = unknown_cnt - 1
+                queue.put('Known')
+            else:
+                if queue.full():
+                    item = queue.get()
+                    if item == 'Unknown':
+                        unknown_cnt = unknown_cnt - 1
+                queue.put('Unknown')
+                unknown_cnt = unknown_cnt + 1
             recognized_face_labels.append(label)
+
+        # print(unknown_cnt, queue.full())
+        if unknown_cnt >= 5 and queue.full():
+            # print(cnt)
+            if time.time() - last_intrusion_time > INTRUSION_INTERVAL:  # intrusion detected
+                last_intrusion_time = time.time()
+                intrusion_flag = True
+                # print('stranger! ', queue.qsize())
 
         # Draw rectangles and labels on the frame for recognized faces
         for (top, right, bottom, left), label in zip(face_locations, recognized_face_labels):
@@ -68,16 +91,20 @@ def fr():
             cv2.rectangle(frame, (left, bottom - 25), (right, bottom), (0, 0, 255), cv2.FILLED)
             cv2.putText(frame, label, (left + 6, bottom - 6), cv2.FONT_HERSHEY_DUPLEX, 0.8, (255, 255, 255), 1)
 
-        # Display the resulting frame
-        cv2.imshow('Face Recognition', frame)
+        if video_queue.qsize() == MAX_VIDEO_QUEUE_SIZE:
+            video_queue.get()
+            video_queue.get()
+        video_queue.put(frame)
+        video_queue.put(frame)
 
-        # Break the loop when 'q' is pressed
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            break
+        if intrusion_flag:
+            intrusion_flag = False
+            intrusion_time = str(datetime.datetime.now().replace(microsecond=0)).replace(' ', 'T').replace(':', '-')
+            video_filename = 'uid' + uid + '_' + intrusion_time + '.mp4'
+            yield frame, intrusion_time, video_filename, fps, width, height, video_queue
+        else:
+            yield frame, None, None, None, None, None, None
 
-    # Release the video capture and close all windows
-    video_capture.release()
-    cv2.destroyAllWindows()
 
 def face_service(frame, known_face_encodings, known_face_labels):
     rgb_frame = np.ascontiguousarray(frame[:, :, ::-1])

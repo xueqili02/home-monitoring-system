@@ -23,9 +23,7 @@ INSTALLED_APPS = [
     'emotion',
     'microexpression',
     'service',
-    # 'rest_framework',
-    # 'channels',
-    # 'daphne',
+    'face',
 
     'django.contrib.admin',
     'django.contrib.auth',
@@ -137,3 +135,7 @@ CORS_ORIGIN_WHITELIST = (
     # 'ws://localhost:8000'
 )
 CORS_ALLOW_CREDENTIALS = False  # 允许携带cookie
+
+# session
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+SESSION_COOKIE_AGE = 1800

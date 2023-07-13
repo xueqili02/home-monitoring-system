@@ -1,8 +1,14 @@
+import datetime
+from urllib.parse import quote_plus
+
 import numpy as np
 import cv2
 
 g_camera_ranges = {}
 g_first_image = {}
+g_active_objects = ['person', 'cat', 'dog']
+IMAGE_FREQ = 400
+g_record_list = []
 
 def object_detection(url):
     # Set colors
@@ -23,9 +29,6 @@ def object_detection(url):
             class_name = class_name.strip()
             classes.append(class_name)
 
-    # Add the recognition you want to detect
-    active_objects = ['person', 'cat', 'dog']
-
     # Local camera /  fps: 25
     cap = cv2.VideoCapture(url)
     width = cap.get(cv2.CAP_PROP_FRAME_WIDTH)
@@ -41,7 +44,10 @@ def object_detection(url):
             g_first_image[url] = frame_data
             break
 
+    cnt = 0
+    object_num = 0
     while True:
+        cnt = cnt + 1
         ret = cap.grab()
         if ret is False:
             continue
@@ -71,17 +77,25 @@ def object_detection(url):
 
             class_name = classes[class_id]
             color = colors[class_id]
-            if class_name in active_objects:
+            if class_name in g_active_objects:
                 cv2.putText(frame, class_name, (x, y - 10), cv2.FONT_HERSHEY_PLAIN, 2, color, 2)
                 cv2.rectangle(frame, (x, y), (x + w, y + h), color, 5)
+                if cnt % IMAGE_FREQ == 0:
+                    object_num = object_num + 1
 
-        yield frame
-        # # Convert the frame to JPEG format
-        # ret, jpeg = cv2.imencode('.jpg', img_rd)
-        # frame_data = jpeg.tobytes()
-        #
-        # yield (b'--frame\r\n'
-        #        b'Content-Type: image/jpeg\r\n\r\n' + frame_data + b'\r\n\r\n')
+        if cnt % IMAGE_FREQ == 0:
+            image_time = str(datetime.datetime.now().replace(microsecond=0)).replace(' ', 'T').replace(':', '-')
+            image_path = 'resource/detection_image/' + quote_plus(url) + image_time + '.jpg'
+            ret, jpeg = cv2.imencode('.jpg', frame)
+            if ret:
+                with open(image_path, 'wb') as f:
+                    f.write(jpeg.tobytes())
+                record = {'number': object_num, 'time': image_time, 'camera_url': url, 'path': image_path}
+                g_record_list.append(record)
+            object_num = 0
+            yield frame, cnt
+        else:
+            yield frame, None
 
 
 def object_service(frame, model, classes, colors, active_objects):
@@ -102,3 +116,11 @@ def set_coordinate(camera_ranges):
 
 def get_first_image(url):
     return g_first_image.get(url)
+
+def set_active_objects(active_objects):
+    global g_active_objects
+    g_active_objects = active_objects
+
+def get_record():
+    global g_record_list
+    return g_record_list[-1]
