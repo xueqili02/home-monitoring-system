@@ -11,6 +11,8 @@ __pycache__/
 /resource/detection_image/*.jpg
 /resource/face_image/*.jpg
 /resource/intrusion_video/*.mp4
+/resource/three2two/image/*.png
+/resource/three2two/ply/*.ply
 
 /model/emotional_recognition/model_U.pth
 /model/microexpression_recognition/model/checkpoint

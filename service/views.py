@@ -4,12 +4,14 @@ import json
 import cv2
 
 from PIL import Image
-from django.http import StreamingHttpResponse, HttpResponse
+from django.http import StreamingHttpResponse, HttpResponse, FileResponse
 from model.emotional_recognition.emo_reco import emotion_service
 from model.face_recognition.fr_video import face_service
 from model.image_caption.predict import describe_image
 from model.microexpression_recognition.demo import microexpression_service
 from model.object_detect.object_detection import object_service
+from model.three2two.three2two import three_d_to_two_d
+from .forms import PLYForm
 from .preload import object_model, classes, colors, active_objects, \
                         emotion_model, device, transform, \
                         sess, probs, face_x, \
@@ -66,3 +68,19 @@ def image_caption(request):
     image = io.BytesIO(base64.b64decode(image_base64))
     caption = describe_image(Image.open(image))
     return HttpResponse(json.dumps({'code': 200, 'message': 'success', 'data': caption}))
+
+def three_to_two(request):
+    if request.method == "POST":
+        form = PLYForm(request.POST, request.FILES)
+        if form.is_valid():
+            ply_file = form.cleaned_data['file']
+            ply_save_path = 'resource/three2two/ply/' + ply_file.name
+            image_save_path = 'resource/three2two/image/' + str(ply_file.name).split('.')[0] + '.png'
+            with open(ply_save_path, 'wb') as f:
+                for chunk in ply_file.chunks():
+                    f.write(chunk)
+            three_d_to_two_d(ply_save_path, image_save_path)
+            response = FileResponse(open(image_save_path, 'rb'), content_type='image/jpeg')
+            response['Content-Disposition'] = 'attachment; filename="' + str(ply_file.name).split('.')[0] + '.png"'
+            return response
+    return HttpResponse(json.dumps({'code': 403, 'message': 'failure', 'data': None}))
