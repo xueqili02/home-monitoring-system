@@ -22,7 +22,7 @@ def upload_image(request, uid):
     if request.method == "POST":
         form = UploadImageForm(request.POST, request.FILES)
         if form.is_valid():
-            image = form.cleaned_data['image']
+            image = form.cleaned_data['file']
             title = str(image.name).split('.')[0]
             img = preprocess_single(Image.open(image))
             if img is not None:
