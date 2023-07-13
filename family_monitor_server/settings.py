@@ -23,9 +23,7 @@ INSTALLED_APPS = [
     'emotion',
     'microexpression',
     'service',
-    # 'rest_framework',
-    # 'channels',
-    # 'daphne',
+    'face',
 
     'django.contrib.admin',
     'django.contrib.auth',

@@ -3,9 +3,11 @@ import cv2
 import re
 
 from PIL import Image
-from django.http import HttpResponse
+from django.http import HttpResponse, StreamingHttpResponse
 from face.forms import UploadImageForm, FaceLoginForm
+from face.models import Intrusion
 from model.face_recognition.fr_img import classify_face
+from model.face_recognition.fr_video import fr
 from model.face_recognition.preProcess import preprocess_single
 from user.models import User
 
@@ -40,3 +42,27 @@ def face_login(request):
                 except User.DoesNotExist:
                     return HttpResponse(json.dumps({'code': 200, 'message': 'user des not exist', 'data': user}))
     return HttpResponse(json.dumps({'code': 200, 'message': 'failure', 'data': None}))
+
+def intrusion_recognition(request, uid):
+    try:
+        user = User.objects.get(id=uid)
+    except User.DoesNotExist:
+        return HttpResponse(json.dumps({'code': 403, 'message': 'user does not exist', 'data': None}))
+
+    def frame_generator():
+        for frame, intrusion_time, video_path, fps, width, height, video_queue in fr('rtmp://47.92.211.14:1935/live/1', uid):
+            if intrusion_time is not None:
+                intrusion_record = Intrusion.objects.create(uid=user, intrusion_time=intrusion_time, video_path=video_path)
+                # 创建一个VideoWriter对象，用于保存视频
+                fourcc = cv2.VideoWriter_fourcc(*'mp4v')  # 指定编码器为MP4
+                out = cv2.VideoWriter(video_path, fourcc, fps, (width, height))
+                while not video_queue.empty():
+                    item = video_queue.get()
+                    out.write(item)
+                out.release()
+            ret, jpeg = cv2.imencode('.jpg', frame)
+            frame_data = jpeg.tobytes()
+
+            yield (b'--frame\r\n'
+                   b'Content-Type: image/jpeg\r\n\r\n' + frame_data + b'\r\n\r\n')
+    return StreamingHttpResponse(frame_generator(), content_type='multipart/x-mixed-replace; boundary=frame')
