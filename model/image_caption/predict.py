@@ -1,72 +1,8 @@
 import torch
 
-from transformers import BertTokenizer
-from PIL import Image
-import argparse
-
-from models import caption
-from datasets import coco, utils
-from configuration import Config
-import os
-
-# parser = argparse.ArgumentParser(description='Image Captioning')
-# parser.add_argument('--path', type=str, help='path to image', required=True)
-# parser.add_argument('--v', type=str, help='version', default='v3')
-# parser.add_argument('--checkpoint', type=str, help='checkpoint path', default=None)
-# args = parser.parse_args()
-# image_path = args.path
-# version = args.v
-# checkpoint_path = args.checkpoint
-
-
-
-config = Config()
-model = torch.hub.load('saahiluppal/catr', 'v3', pretrained=True)
-# if version == 'v1':
-#     model = torch.load('models/weight389123791.pth')
-# elif version == 'v2':
-#     model = torch.hub.load('saahiluppal/catr', 'v2', pretrained=True)
-# elif version == 'v3':
-#     model = torch.hub.load('saahiluppal/catr', 'v3', pretrained=True)
-# else:
-#     print("Checking for checkpoint.")
-#     if checkpoint_path is None:
-#       raise NotImplementedError('No model to chose from!')
-#     else:
-#       if not os.path.exists(checkpoint_path):
-#         raise NotImplementedError('Give valid checkpoint path')
-#       print("Found checkpoint! Loading!")
-#       model,_ = caption.build_model(config)
-#       print("Loading Checkpoint...")
-#       checkpoint = torch.load(checkpoint_path, map_location='cpu')
-#       model.load_state_dict(checkpoint['model'])
-tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
-
-start_token = tokenizer.convert_tokens_to_ids(tokenizer._cls_token)
-end_token = tokenizer.convert_tokens_to_ids(tokenizer._sep_token)
-
-
-
-def create_caption_and_mask(start_token, max_length):
-    caption_template = torch.zeros((1, max_length), dtype=torch.long)
-    mask_template = torch.ones((1, max_length), dtype=torch.bool)
-
-    caption_template[:, 0] = start_token
-    mask_template[:, 0] = False
-
-    return caption_template, mask_template
-
-
-caption, cap_mask = create_caption_and_mask(
-    start_token, config.max_position_embeddings)
-
-
-def getImgPath(path):
-    image = Image.open(path)
-    image = coco.val_transform(image)
-    image = image.unsqueeze(0)
-    return image
-
+from model.image_caption.models import caption
+from model.image_caption.datasets import coco
+from service.preload import config, model, tokenizer, start_token, end_token, caption, cap_mask
 
 @torch.no_grad()
 def evaluate(image):
@@ -85,14 +21,14 @@ def evaluate(image):
     return caption
 
 
-def describeImg(path):
-
-
-    output = evaluate(getImgPath(path))
+def describe_image(image):
+    image = coco.val_transform(image)
+    image = image.unsqueeze(0)
+    output = evaluate(image)
     result = tokenizer.decode(output[0].tolist(), skip_special_tokens=True)
     #result = tokenizer.decode(output[0], skip_special_tokens=True)
     # print(result.capitalize())
     return result.capitalize()
 
 
-print(describeImg('bath.jpg'))
+# print(describe_image('bath.jpg'))

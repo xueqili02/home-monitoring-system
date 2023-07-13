@@ -6,7 +6,10 @@ import torchvision.transforms as transforms
 import tensorflow as tf
 import glob
 
+from transformers import BertTokenizer
+
 from model.emotional_recognition.EMR import to_device, MERCnnModel, get_default_device
+from model.image_caption.configuration import Config
 from model.isLive.gaze_tracking.gaze_tracking import GazeTracking
 from model.microexpression_recognition.model import deepnn
 
@@ -15,7 +18,7 @@ emotion_model, device, transform = None, None, None
 sess, probs, face_x = None, None, None
 known_face_encodings, known_face_labels = None, None
 gaze = None
-
+config, model, tokenizer, start_token, end_token, caption, cap_mask = None, None, None, None, None, None, None
 def object_preload():
     global object_model, classes, colors, active_objects
     # Set colors
@@ -92,3 +95,25 @@ def face_preload():
 def gaze_preload():
     global gaze
     gaze = GazeTracking()
+
+def image_caption_preload():
+    global config, model, tokenizer, start_token, end_token, caption, cap_mask
+    config = Config()
+    model = torch.hub.load('saahiluppal/catr', 'v3', pretrained=True)
+
+    tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
+
+    start_token = tokenizer.convert_tokens_to_ids(tokenizer._cls_token)
+    end_token = tokenizer.convert_tokens_to_ids(tokenizer._sep_token)
+
+    def create_caption_and_mask(start_token, max_length):
+        caption_template = torch.zeros((1, max_length), dtype=torch.long)
+        mask_template = torch.ones((1, max_length), dtype=torch.bool)
+
+        caption_template[:, 0] = start_token
+        mask_template[:, 0] = False
+
+        return caption_template, mask_template
+
+    caption, cap_mask = create_caption_and_mask(
+        start_token, config.max_position_embeddings)

@@ -2,7 +2,7 @@ import argparse
 
 def parsers():
     parser = argparse.ArgumentParser(
-        usage='python gester --show-cam'
+        usage='python gesture --show-cam'
     )
     parser.add_argument(
         '--show-cam',

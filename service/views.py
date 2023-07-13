@@ -1,8 +1,13 @@
+import base64
+import io
+import json
 import cv2
 
-from django.http import StreamingHttpResponse
+from PIL import Image
+from django.http import StreamingHttpResponse, HttpResponse
 from model.emotional_recognition.emo_reco import emotion_service
 from model.face_recognition.fr_video import face_service
+from model.image_caption.predict import describe_image
 from model.microexpression_recognition.demo import microexpression_service
 from model.object_detect.object_detection import object_service
 from .preload import object_model, classes, colors, active_objects, \
@@ -53,3 +58,11 @@ def call(obj, emotion, microexpression, face):
             frame = face_service(frame, known_face_encodings, known_face_labels)
 
         yield frame
+
+
+def image_caption(request):
+    image_base64 = json.loads(request.body).get('image')
+    image_base64 = image_base64.split(';base64,')[-1]
+    image = io.BytesIO(base64.b64decode(image_base64))
+    caption = describe_image(Image.open(image))
+    return HttpResponse(json.dumps({'code': 200, 'message': 'success', 'data': caption}))
