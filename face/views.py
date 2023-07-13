@@ -3,6 +3,7 @@ import io
 import json
 import cv2
 import re
+import imageio as iio
 
 from PIL import Image
 from django.core import serializers
@@ -81,7 +82,7 @@ def intrusion_recognition(request, uid):
             if intrusion_time is not None:
                 Intrusion.objects.create(uid=user, intrusion_time=intrusion_time, video_path=video_filename)
                 # 创建一个VideoWriter对象，用于保存视频
-                fourcc = cv2.VideoWriter_fourcc(*'mp4v')  # 指定编码器为MP4
+                fourcc = cv2.VideoWriter_fourcc('H', '2', '6', '4')  # 指定编码器为MP4
                 out = cv2.VideoWriter('resource/intrusion_video/' + video_filename, fourcc, fps, (width, height))
                 while not video_queue.empty():
                     item = video_queue.get()
@@ -102,4 +103,5 @@ def intrusion_record(request, uid):
 def intrusion_video(request):
     video_path = 'resource/intrusion_video/' + request.GET.get('path')
     response = FileResponse(open(video_path, 'rb'), content_type='video/mp4')
+    response['Content-Disposition'] = 'inline'
     return response
