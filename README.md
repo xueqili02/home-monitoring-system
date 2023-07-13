@@ -52,9 +52,17 @@ pip install -r requirements.txt
 
 [//]: # (```)
 
-### 模型
-将模型复制到指定目录下
+### 模型配置
+将群里发的模型复制到指定目录下
 
 model_U.pth 放到 model/emotional_recognition/下
 
 model.zip解压后的四个文件，放到model/microexpression_recognition/model/下
+
+shape_predictor_68_face_landmarks.dat文件，放到model/isLive/gaze_tracking/trained_models/目录下
+
+checkpoint.pt放到model/gaze_vector/目录下
+
+weight389123791.pth和weight493084032.pth都放到/model/image_caption/models/目录下
+
+Fall_Models解压后的Models文件夹放到/model/fall-detect-track/目录下
