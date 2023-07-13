@@ -3,6 +3,7 @@ import cv2
 import re
 
 from PIL import Image
+from django.core import serializers
 from django.http import HttpResponse, StreamingHttpResponse
 from face.forms import UploadImageForm, FaceLoginForm
 from face.models import Intrusion
@@ -66,3 +67,8 @@ def intrusion_recognition(request, uid):
             yield (b'--frame\r\n'
                    b'Content-Type: image/jpeg\r\n\r\n' + frame_data + b'\r\n\r\n')
     return StreamingHttpResponse(frame_generator(), content_type='multipart/x-mixed-replace; boundary=frame')
+
+def intrusion_record(request, uid):
+    record_queryset = Intrusion.objects.filter(uid=uid)
+    json_data = serializers.serialize('json', record_queryset)
+    return HttpResponse(json_data, content_type='application/json')
