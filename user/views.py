@@ -110,9 +110,9 @@ def login(request):
             try:
                 user = User.objects.get(username=username)
                 if user.password == password:  # 哈希值和数据库内的值进行比对
-                    request.session['is_login'] = True  # 往session字典内写入用户状态和数据
-                    request.session['user_id'] = user.id
-                    request.session['user_name'] = user.username
+                    # request.session['is_login'] = True  # 往session字典内写入用户状态和数据
+                    # request.session['user_id'] = user.id
+                    # request.session['user_name'] = user.username
                     message = 'success'
                     response = {
                         'code': 200,
@@ -140,19 +140,19 @@ def login(request):
     }
     return HttpResponse(json.dumps(response))
 
-
-def logout(request):
-    if not request.session.get('is_login', None):  # 如果本来就未登录，也就没有登出一说
-        response = {
-            'code': 403,
-            'message': 'you are not logged in',
-            'data': None
-        }
-        return HttpResponse(json.dumps(response))
-    request.session.flush()  # 将session中的所有内容全部清空
-    response = {
-        'code': 200,
-        'message': 'success',
-        'data': None
-    }
-    return HttpResponse(json.dumps(response))
+#
+# def logout(request):
+#     if not request.session.get('is_login', None):  # 如果本来就未登录，也就没有登出一说
+#         response = {
+#             'code': 403,
+#             'message': 'you are not logged in',
+#             'data': None
+#         }
+#         return HttpResponse(json.dumps(response))
+#     request.session.flush()  # 将session中的所有内容全部清空
+#     response = {
+#         'code': 200,
+#         'message': 'success',
+#         'data': None
+#     }
+#     return HttpResponse(json.dumps(response))
