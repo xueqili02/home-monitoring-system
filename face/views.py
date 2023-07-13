@@ -3,7 +3,6 @@ import io
 import json
 import cv2
 import re
-import imageio as iio
 
 from PIL import Image
 from django.core import serializers
