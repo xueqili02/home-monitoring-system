@@ -74,6 +74,9 @@ def three_to_two(request):
         form = PLYForm(request.POST, request.FILES)
         if form.is_valid():
             ply_file = form.cleaned_data['file']
+            extension = str(ply_file.name).split('.')[1]
+            if extension != 'ply':
+                return HttpResponse(json.dumps({'code': 403, 'message': 'file extension is incorrect', 'data': None}))
             ply_save_path = 'resource/three2two/ply/' + ply_file.name
             image_save_path = 'resource/three2two/image/' + str(ply_file.name).split('.')[0] + '.png'
             with open(ply_save_path, 'wb') as f:
