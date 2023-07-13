@@ -119,7 +119,8 @@ def login(request):
                         'message': message,
                         'data': {'username': user.username,
                                  'email': user.email,
-                                 'id': user.id}
+                                 'id': user.id,
+                                 'camera_urls': user.camera_urls}
                     }
                     return HttpResponse(json.dumps(response))
                 else:
