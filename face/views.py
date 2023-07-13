@@ -18,7 +18,7 @@ def upload_image(request, uid):
         form = UploadImageForm(request.POST, request.FILES)
         if form.is_valid():
             image = form.cleaned_data['image']
-            title = form.cleaned_data['title']
+            title = str(image.name).split('.')[0]
             img = preprocess_single(Image.open(image))
             if img is not None:
                 cv2.imwrite('resource/face_image/uid' + uid + '_' + title + '.jpg', img)
@@ -41,7 +41,7 @@ def face_login(request):
                                                              'email': user.email,
                                                              'id': user.id}}))
                 except User.DoesNotExist:
-                    return HttpResponse(json.dumps({'code': 200, 'message': 'user des not exist', 'data': user}))
+                    return HttpResponse(json.dumps({'code': 200, 'message': 'user des not exist', 'data': None}))
     return HttpResponse(json.dumps({'code': 200, 'message': 'failure', 'data': None}))
 
 def intrusion_recognition(request, uid):
