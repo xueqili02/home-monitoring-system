@@ -18,6 +18,8 @@ import os
 # version = args.v
 # checkpoint_path = args.checkpoint
 
+
+
 config = Config()
 model = torch.hub.load('saahiluppal/catr', 'v3', pretrained=True)
 # if version == 'v1':
@@ -43,9 +45,6 @@ tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
 start_token = tokenizer.convert_tokens_to_ids(tokenizer._cls_token)
 end_token = tokenizer.convert_tokens_to_ids(tokenizer._sep_token)
 
-image = Image.open('bath.jpg')
-image = coco.val_transform(image)
-image = image.unsqueeze(0)
 
 
 def create_caption_and_mask(start_token, max_length):
@@ -62,8 +61,15 @@ caption, cap_mask = create_caption_and_mask(
     start_token, config.max_position_embeddings)
 
 
+def getImgPath(path):
+    image = Image.open(path)
+    image = coco.val_transform(image)
+    image = image.unsqueeze(0)
+    return image
+
+
 @torch.no_grad()
-def evaluate():
+def evaluate(image):
     model.eval()
     for i in range(config.max_position_embeddings - 1):
         predictions = model(image, caption, cap_mask)
@@ -79,7 +85,14 @@ def evaluate():
     return caption
 
 
-output = evaluate()
-result = tokenizer.decode(output[0].tolist(), skip_special_tokens=True)
-#result = tokenizer.decode(output[0], skip_special_tokens=True)
-print(result.capitalize())
+def describeImg(path):
+
+
+    output = evaluate(getImgPath(path))
+    result = tokenizer.decode(output[0].tolist(), skip_special_tokens=True)
+    #result = tokenizer.decode(output[0], skip_special_tokens=True)
+    # print(result.capitalize())
+    return result.capitalize()
+
+
+print(describeImg('bath.jpg'))
