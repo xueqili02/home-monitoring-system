@@ -4,7 +4,7 @@ import re
 
 from PIL import Image
 from django.core import serializers
-from django.http import HttpResponse, StreamingHttpResponse
+from django.http import HttpResponse, StreamingHttpResponse, FileResponse
 from face.forms import UploadImageForm, FaceLoginForm
 from face.models import Intrusion
 from model.face_recognition.fr_img import classify_face
@@ -72,3 +72,8 @@ def intrusion_record(request, uid):
     record_queryset = Intrusion.objects.filter(uid=uid)
     json_data = serializers.serialize('json', record_queryset)
     return HttpResponse(json_data, content_type='application/json')
+
+def intrusion_video(request):
+    video_path = 'resource/intrusion_video/' + request.GET.get('path')
+    response = FileResponse(open(video_path, 'rb'), content_type='video/mp4')
+    return response
