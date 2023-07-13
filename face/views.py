@@ -1,3 +1,5 @@
+import base64
+import io
 import json
 import cv2
 import re
@@ -5,13 +7,16 @@ import re
 from PIL import Image
 from django.core import serializers
 from django.http import HttpResponse, StreamingHttpResponse, FileResponse
-from face.forms import UploadImageForm, FaceLoginForm
+from face.forms import UploadImageForm
 from face.models import Intrusion
 from model.face_recognition.fr_img import classify_face
 from model.face_recognition.fr_video import fr
 from model.face_recognition.preProcess import preprocess_single
+from model.isLive.gaze_track import blink_detection
 from user.models import User
 
+
+BLINK_THRESHOLD = 4
 
 def upload_image(request, uid):
     if request.method == "POST":
@@ -26,23 +31,44 @@ def upload_image(request, uid):
     return HttpResponse(json.dumps({'code': 403, 'message': 'failure', 'data': None}))
 
 def face_login(request):
-    if request.method == "POST":
-        form = FaceLoginForm(request.POST, request.FILES)
-        if form.is_valid():
-            image = form.cleaned_data['image']
-            face_names = classify_face(Image.open(image), 'resource/face_image/')
-            if face_names[0] != 'Unknown':
-                pattern = r'uid(\d+)'
-                match = re.search(pattern, face_names[0])
-                try:
-                    user = User.objects.get(id=int(match.group(1)))
-                    return HttpResponse(json.dumps({'code': 200, 'message': 'success',
-                                                    'data': {'username': user.username,
-                                                             'email': user.email,
-                                                             'id': user.id}}))
-                except User.DoesNotExist:
-                    return HttpResponse(json.dumps({'code': 200, 'message': 'user des not exist', 'data': None}))
-    return HttpResponse(json.dumps({'code': 200, 'message': 'failure', 'data': None}))
+    image_list = json.loads(request.body).get('image')
+    blink_cnt = 0
+    flag = False
+    no_blink_image = None
+    for image_base64 in image_list:
+        image_base64 = image_base64.split(';base64,')[-1]
+        image = io.BytesIO(base64.b64decode(image_base64))
+        if no_blink_image is None:
+            no_blink_image = image
+        # temp = Image.open(image)
+        # temp.show()
+        gaze = blink_detection(Image.open(image))
+        if gaze is True:  # blink detected
+            blink_cnt = blink_cnt + 1
+        else:
+            no_blink_image = image
+        if blink_cnt >= 4:
+            flag = True
+            break
+
+    if flag is False:
+        return HttpResponse(json.dumps({'code': 403, 'message': 'user does not blink', 'data': None}))
+
+    face_names = classify_face(Image.open(no_blink_image), 'resource/face_image/')
+    if face_names[0] != 'Unknown':
+        pattern = r'uid(\d+)'
+        match = re.search(pattern, face_names[0])
+        try:
+            user = User.objects.get(id=int(match.group(1)))
+            return HttpResponse(json.dumps({'code': 200, 'message': 'success',
+                                            'data': {'username': user.username,
+                                                     'email': user.email,
+                                                     'id': user.id,
+                                                     'camera_urls': user.camera_urls}}))
+        except User.DoesNotExist:
+            return HttpResponse(json.dumps({'code': 403, 'message': 'user des not exist', 'data': None}))
+
+    return HttpResponse(json.dumps({'code': 403, 'message': 'failure', 'data': None}))
 
 def intrusion_recognition(request, uid):
     try:

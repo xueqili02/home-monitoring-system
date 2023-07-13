@@ -7,12 +7,14 @@ import tensorflow as tf
 import glob
 
 from model.emotional_recognition.EMR import to_device, MERCnnModel, get_default_device
+from model.isLive.gaze_tracking.gaze_tracking import GazeTracking
 from model.microexpression_recognition.model import deepnn
 
 object_model, classes, colors, active_objects = None, None, None, None
 emotion_model, device, transform = None, None, None
 sess, probs, face_x = None, None, None
 known_face_encodings, known_face_labels = None, None
+gaze = None
 
 def object_preload():
     global object_model, classes, colors, active_objects
@@ -86,3 +88,7 @@ def face_preload():
         # Append the encoding and label to the known faces list
         known_face_encodings.append(face_encoding)
         known_face_labels.append(label)
+
+def gaze_preload():
+    global gaze
+    gaze = GazeTracking()
