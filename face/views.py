@@ -51,12 +51,12 @@ def intrusion_recognition(request, uid):
         return HttpResponse(json.dumps({'code': 403, 'message': 'user does not exist', 'data': None}))
 
     def frame_generator():
-        for frame, intrusion_time, video_path, fps, width, height, video_queue in fr('rtmp://47.92.211.14:1935/live/1', uid):
+        for frame, intrusion_time, video_filename, fps, width, height, video_queue in fr('rtmp://47.92.211.14:1935/live/1', uid):
             if intrusion_time is not None:
-                intrusion_record = Intrusion.objects.create(uid=user, intrusion_time=intrusion_time, video_path=video_path)
+                Intrusion.objects.create(uid=user, intrusion_time=intrusion_time, video_path=video_filename)
                 # 创建一个VideoWriter对象，用于保存视频
                 fourcc = cv2.VideoWriter_fourcc(*'mp4v')  # 指定编码器为MP4
-                out = cv2.VideoWriter(video_path, fourcc, fps, (width, height))
+                out = cv2.VideoWriter('resource/intrusion_video/' + video_filename, fourcc, fps, (width, height))
                 while not video_queue.empty():
                     item = video_queue.get()
                     out.write(item)

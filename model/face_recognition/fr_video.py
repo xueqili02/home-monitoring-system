@@ -80,7 +80,7 @@ def fr(url, uid):
             if time.time() - last_intrusion_time > INTRUSION_INTERVAL:  # intrusion detected
                 last_intrusion_time = time.time()
                 intrusion_flag = True
-                print('stranger! ', queue.qsize())
+                # print('stranger! ', queue.qsize())
 
         # Draw rectangles and labels on the frame for recognized faces
         for (top, right, bottom, left), label in zip(face_locations, recognized_face_labels):
@@ -100,8 +100,8 @@ def fr(url, uid):
         if intrusion_flag:
             intrusion_flag = False
             intrusion_time = str(datetime.datetime.now().replace(microsecond=0)).replace(' ', 'T').replace(':', '-')
-            video_path = 'resource/intrusion_video/uid' + uid + '_' + intrusion_time + '.mp4'
-            yield frame, intrusion_time, video_path, fps, width, height, video_queue
+            video_filename = 'uid' + uid + '_' + intrusion_time + '.mp4'
+            yield frame, intrusion_time, video_filename, fps, width, height, video_queue
         else:
             yield frame, None, None, None, None, None, None
 
