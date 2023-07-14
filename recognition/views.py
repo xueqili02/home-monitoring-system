@@ -125,7 +125,6 @@ def week_record(request, uid):
     except User.DoesNotExist:
         return HttpResponse(json.dumps({'code': 403, 'message': 'user does not exist', 'data': None}))
     date = datetime.date.today()
-    print(date)
     record_queryset = Detection.objects.filter(uid=user)
     result = [0, 0, 0, 0, 0, 0, 0]
     for record in record_queryset:
@@ -133,4 +132,28 @@ def week_record(request, uid):
         time_diff = (date - record_date).days
         if time_diff <= 6:
             result[6 - time_diff] += 1
+    return HttpResponse(json.dumps({'code': 200, 'message': 'success', 'data': json.dumps(result)}))
+
+def camera_record(request, uid):
+    try:
+        user = User.objects.get(id=uid)
+        camera_urls = ast.literal_eval(user.camera_urls)
+        url1 = camera_urls.get('url1')
+        url2 = camera_urls.get('url2')
+        url3 = camera_urls.get('url3')
+        url4 = camera_urls.get('url4')
+    except User.DoesNotExist:
+        return HttpResponse(json.dumps({'code': 403, 'message': 'user does not exist', 'data': None}))
+
+    record_queryset = Detection.objects.filter(uid=user)
+    result = [0, 0, 0, 0]
+    for record in record_queryset:
+        if record.camera_url == url1:
+            result[0] += 1
+        if record.camera_url == url2:
+            result[1] += 1
+        if record.camera_url == url3:
+            result[2] += 1
+        if record.camera_url == url4:
+            result[3] += 1
     return HttpResponse(json.dumps({'code': 200, 'message': 'success', 'data': json.dumps(result)}))
