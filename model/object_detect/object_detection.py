@@ -1,6 +1,4 @@
 import datetime
-from urllib.parse import quote_plus
-
 import numpy as np
 import cv2
 
@@ -85,7 +83,8 @@ def object_detection(url):
 
         if cnt % IMAGE_FREQ == 0:
             image_time = str(datetime.datetime.now().replace(microsecond=0)).replace(' ', 'T').replace(':', '-')
-            image_path = 'resource/detection_image/' + quote_plus(url) + image_time + '.jpg'
+            image_path = 'resource/detection_image/' + str(url).replace('/', '%2F').replace(':', '%3A') \
+                         + image_time + '.jpg'
             ret, jpeg = cv2.imencode('.jpg', frame)
             if ret:
                 with open(image_path, 'wb') as f:
