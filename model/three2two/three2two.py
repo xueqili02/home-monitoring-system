@@ -1,3 +1,5 @@
+import os
+
 import open3d as o3d
 import numpy as np
 import matplotlib.pyplot as plt
@@ -51,6 +53,6 @@ def three_d_to_two_d(plyPath, savePath):
     plt.ylabel('Y (m)')
     plt.title('Aligned Projection')
     plt.savefig(savePath)
-    plt.show()
+    plt.close()
 
 # three22('corridor.ply','111.jpg')

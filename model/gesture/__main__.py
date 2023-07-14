@@ -34,7 +34,7 @@ data = 'wait'
 cmd = 'data'
 while True:
     # Import images
-    sucess, img = cap.read()
+    ret, img = cap.read()
     img = cv2.flip(img, 1)
 
     hands, img = detector.findHands(img)
