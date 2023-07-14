@@ -11,4 +11,5 @@ urlpatterns = [
     path("record/uid/<uid>/", views.record, name="record"),
     path("object_image/", views.object_image, name="object_image"),
     path("camera_url/", views.camera_url, name="camera_url"),
+    path("week_record/uid/<uid>/", views.week_record, name="week_record"),
 ]

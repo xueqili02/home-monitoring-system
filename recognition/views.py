@@ -1,4 +1,5 @@
 import ast
+import datetime
 import json
 import cv2
 
@@ -117,3 +118,19 @@ def camera_url(request):
         return HttpResponse(json.dumps({'code': 200, 'message': 'success', 'data': None}))
     except User.DoesNotExist:
         return HttpResponse(json.dumps({'code': 403, 'message': 'user does not exist', 'data': None}))
+
+def week_record(request, uid):
+    try:
+        user = User.objects.get(id=uid)
+    except User.DoesNotExist:
+        return HttpResponse(json.dumps({'code': 403, 'message': 'user does not exist', 'data': None}))
+    date = datetime.date.today()
+    print(date)
+    record_queryset = Detection.objects.filter(uid=user)
+    result = [0, 0, 0, 0, 0, 0, 0]
+    for record in record_queryset:
+        record_date = datetime.datetime.strptime(record.time.split('T')[0], '%Y-%m-%d').date()
+        time_diff = (date - record_date).days
+        if time_diff <= 6:
+            result[6 - time_diff] += 1
+    return HttpResponse(json.dumps({'code': 200, 'message': 'success', 'data': json.dumps(result)}))
