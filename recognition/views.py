@@ -3,7 +3,6 @@ import json
 import cv2
 
 from django.core import serializers
-from urllib.parse import quote_plus
 from django.http import StreamingHttpResponse, HttpResponse
 from model.object_detect.object_detection import object_detection, set_coordinate, get_first_image, \
     set_active_objects, get_record
@@ -97,7 +96,7 @@ def record(request, uid):
 def object_image(request):
     camera_url = request.GET.get('camera_url')
     time = request.GET.get('time')
-    path = 'resource/detection_image/' + quote_plus(camera_url) + time + '.jpg'
+    path = 'resource/detection_image/' + str(camera_url).replace('/', '%2F').replace(':', '%3A') + time + '.jpg'
     image = cv2.imread(path)
     ret, jpg = cv2.imencode('.jpg', image)
     frame_data = jpg.tobytes()

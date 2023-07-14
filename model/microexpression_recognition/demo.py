@@ -17,7 +17,7 @@ def format_image(image):
         image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         # 它可以检测出图片中所有的人脸，并将人脸用vector保存各个人脸的坐标、大小（用矩形表示）
         # 调整scaleFactor参数的大小，可以增加识别的灵敏度，推荐1.1
-        faces = cascade_classifier.detectMultiScale(image, scaleFactor=1.1, minNeighbors=5)
+    faces = cascade_classifier.detectMultiScale(image, scaleFactor=1.1, minNeighbors=5)
     # 如果图片中没有检测到人脸，则返回None
     if not len(faces) > 0:
         return None, None

@@ -7,6 +7,7 @@ from PIL import Image
 from django.http import StreamingHttpResponse, HttpResponse, FileResponse
 from model.emotional_recognition.emo_reco import emotion_service
 from model.face_recognition.fr_video import face_service
+from model.fall_detect_track.fall_main import fall_detection
 from model.image_caption.predict import describe_image
 from model.microexpression_recognition.demo import microexpression_service
 from model.object_detect.object_detection import object_service
@@ -83,7 +84,22 @@ def three_to_two(request):
                 for chunk in ply_file.chunks():
                     f.write(chunk)
             three_d_to_two_d(ply_save_path, image_save_path)
-            response = FileResponse(open(image_save_path, 'rb'), content_type='image/jpeg')
-            response['Content-Disposition'] = 'attachment; filename="' + str(ply_file.name).split('.')[0] + '.png"'
-            return response
+            return HttpResponse(json.dumps({'code': 200, 'message': 'success', 'data': image_save_path}))
     return HttpResponse(json.dumps({'code': 403, 'message': 'failure', 'data': None}))
+
+def image_download(request):
+    image_path = request.GET.get('image_path')
+    response = FileResponse(open(image_path, 'rb'))
+    response['Content-Disposition'] = 'attachment; filename={}'.format(image_path.split('/')[-1])
+    return response
+
+def fall_recognition(request):
+    def frame_generator():
+        for frame in fall_detection('rtmp://47.92.211.14:1935/live/1'):
+            ret, jpeg = cv2.imencode('.jpg', frame)
+            frame_data = jpeg.tobytes()
+
+            yield (b'--frame\r\n'
+                   b'Content-Type: image/jpeg\r\n\r\n' + frame_data + b'\r\n\r\n')
+
+    return StreamingHttpResponse(frame_generator(), content_type='multipart/x-mixed-replace; boundary=frame')
