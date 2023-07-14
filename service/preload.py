@@ -10,6 +10,7 @@ from transformers import BertTokenizer
 
 from model.emotional_recognition.EMR import to_device, MERCnnModel, get_default_device
 from model.image_caption.configuration import Config
+from model.image_caption.models.caption import build_model
 from model.isLive.gaze_tracking.gaze_tracking import GazeTracking
 from model.microexpression_recognition.model import deepnn
 
@@ -18,7 +19,7 @@ emotion_model, device, transform = None, None, None
 sess, probs, face_x = None, None, None
 known_face_encodings, known_face_labels = None, None
 gaze = None
-config, model, tokenizer, start_token, end_token, caption, cap_mask = None, None, None, None, None, None, None
+config, model_caption, tokenizer, start_token, end_token, caption, cap_mask = None, None, None, None, None, None, None
 def object_preload():
     global object_model, classes, colors, active_objects
     # Set colors
@@ -97,9 +98,12 @@ def gaze_preload():
     gaze = GazeTracking()
 
 def image_caption_preload():
-    global config, model, tokenizer, start_token, end_token, caption, cap_mask
+    global config, model_caption, tokenizer, start_token, end_token, caption, cap_mask
     config = Config()
-    model = torch.hub.load('saahiluppal/catr', 'v3', pretrained=True)
+    model_caption, _ = build_model(config)
+    checkpoint = torch.load('model/image_caption/models/weight493084032.pth')
+    # model = torch.hub.load('saahiluppal/catr', 'v3', pretrained=True)
+    model_caption.load_state_dict(checkpoint['model'])
 
     tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
 

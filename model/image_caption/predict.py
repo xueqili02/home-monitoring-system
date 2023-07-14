@@ -2,13 +2,13 @@ import torch
 
 from model.image_caption.models import caption
 from model.image_caption.datasets import coco
-from service.preload import config, model, tokenizer, start_token, end_token, caption, cap_mask
+from service.preload import config, model_caption, tokenizer, start_token, end_token, caption, cap_mask
 
 @torch.no_grad()
 def evaluate(image):
-    model.eval()
+    model_caption.eval()
     for i in range(config.max_position_embeddings - 1):
-        predictions = model(image, caption, cap_mask)
+        predictions = model_caption(image, caption, cap_mask)
         predictions = predictions[:, i, :]
         predicted_id = torch.argmax(predictions, axis=-1)
 

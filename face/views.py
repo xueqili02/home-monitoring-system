@@ -1,4 +1,5 @@
 import base64
+import datetime
 import io
 import json
 import cv2
@@ -104,3 +105,18 @@ def intrusion_video(request):
     response = FileResponse(open(video_path, 'rb'), content_type='video/mp4')
     response['Content-Disposition'] = 'inline'
     return response
+
+def week_record(request, uid):
+    try:
+        user = User.objects.get(id=uid)
+    except User.DoesNotExist:
+        return HttpResponse(json.dumps({'code': 403, 'message': 'user does not exist', 'data': None}))
+    date = datetime.date.today()
+    record_queryset = Intrusion.objects.filter(uid=user)
+    result = [0, 0, 0, 0, 0, 0, 0]
+    for record in record_queryset:
+        record_date = datetime.datetime.strptime(record.intrusion_time.split('T')[0], '%Y-%m-%d').date()
+        time_diff = (date - record_date).days
+        if time_diff <= 6:
+            result[6 - time_diff] += 1
+    return HttpResponse(json.dumps({'code': 200, 'message': 'success', 'data': json.dumps(result)}))

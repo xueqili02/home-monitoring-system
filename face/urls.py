@@ -8,4 +8,5 @@ urlpatterns = [
     path("intrusion_recognition/uid/<uid>/", views.intrusion_recognition, name="intrusion_recognition"),
     path("intrusion_record/uid/<uid>/", views.intrusion_record, name="intrusion_record"),
     path("intrusion_video/", views.intrusion_video, name="intrusion_video"),
+    path("week_record/uid/<uid>/", views.week_record, name="week_record"),
 ]
