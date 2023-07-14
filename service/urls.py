@@ -8,4 +8,5 @@ urlpatterns = [
     path("image_download/", views.image_download, name="image_download"),
     path("three_to_two/", views.three_to_two, name="three_to_two"),
     path("fall_recognition/", views.fall_recognition, name="fall_recognition"),
+    path("gesture_recognition/", views.gesture_recognition, name="gesture_recognition"),
 ]

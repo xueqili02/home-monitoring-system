@@ -8,6 +8,7 @@ from django.http import StreamingHttpResponse, HttpResponse, FileResponse
 from model.emotional_recognition.emo_reco import emotion_service
 from model.face_recognition.fr_video import face_service
 from model.fall_detect_track.fall_main import fall_detection
+from model.gesture.gesture import gesture_reco
 from model.image_caption.predict import describe_image
 from model.microexpression_recognition.demo import microexpression_service
 from model.object_detect.object_detection import object_service
@@ -103,3 +104,13 @@ def fall_recognition(request):
                    b'Content-Type: image/jpeg\r\n\r\n' + frame_data + b'\r\n\r\n')
 
     return StreamingHttpResponse(frame_generator(), content_type='multipart/x-mixed-replace; boundary=frame')
+
+def gesture_recognition(request):
+    image_base64 = json.loads(request.body).get('image')
+    image_base64 = image_base64.split(';base64,')[-1]
+    image = io.BytesIO(base64.b64decode(image_base64))
+    gesture = gesture_reco(Image.open(image))
+    if gesture is not None:
+        return HttpResponse(json.dumps({'code': 200, 'message': 'success', 'data': gesture}))
+    else:
+        return HttpResponse(json.dumps({'code': 200, 'message': 'Not a valid gesture', 'data': None}))
