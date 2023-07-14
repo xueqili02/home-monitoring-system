@@ -1,5 +1,6 @@
 import json
 
+from django.core import serializers
 from django.http import HttpResponse
 
 from .models import User
@@ -11,13 +12,6 @@ def index(request):
 
 
 def register(request):
-    if request.session.get('is_login', None):  # 登录状态不允许注册
-        response = {
-            'code': 403,
-            'message': 'cannot register when logged in',
-            'data': None
-        }
-        return HttpResponse(response)
     if request.method == "POST":
         register_form = RegisterForm(request.POST)
         if register_form.is_valid():  # 获取数据
@@ -93,14 +87,6 @@ def register(request):
 
 
 def login(request):
-    if request.session.get('is_login', None):  # 防止重复登录
-        response = {
-            'code': 403,
-            'message': 'cannot login when logged in',
-            'data': None
-        }
-        return HttpResponse(json.dumps(response))
-
     if request.method == "POST":
         login_form = UserForm(request.POST)
         message = "Please check form content"
@@ -157,3 +143,35 @@ def login(request):
 #         'data': None
 #     }
 #     return HttpResponse(json.dumps(response))
+
+
+def information(request, uid):
+    if request.method == "GET":
+        try:
+            user = User.objects.get(id=uid) # select * from user where id=uid;
+            response = {
+                'code': 200,
+                'message': 'success',
+                'data': {'username': user.username,
+                         'email': user.email,
+                         'id': user.id,
+                         'camera_urls': user.camera_urls}
+            }
+            return HttpResponse(json.dumps(response))
+        except User.DoesNotExist:
+            return HttpResponse(json.dumps({'code': 403, 'message': 'user does not exist', 'data': None}))
+    return HttpResponse(json.dumps({'code': 403, 'message': 'please use get', 'data': None}))
+
+def allinformation(request):
+    if request.method == "GET":
+        try:
+            users = User.objects.all() # select * from user where id=uid;
+            response = {
+                'code': 200,
+                'message': 'success',
+                'data': serializers.serialize('json', users)
+            }
+            return HttpResponse(json.dumps(response))
+        except User.DoesNotExist:
+            return HttpResponse(json.dumps({'code': 403, 'message': 'user does not exist', 'data': None}))
+    return HttpResponse(json.dumps({'code': 403, 'message': 'please use get', 'data': None}))
