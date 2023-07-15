@@ -3,8 +3,6 @@ from django.http import StreamingHttpResponse
 from model.emotional_recognition.emo_reco import emo_reco
 
 
-# Create your views here.
-
 def emotion_recognition(requests):
     def frame_generator():
         for frame in emo_reco():

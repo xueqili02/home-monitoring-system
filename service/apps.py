@@ -7,10 +7,11 @@ class ServiceConfig(AppConfig):
 
     def ready(self):
         from .preload import object_preload, emotion_preload, microexpression_preload, \
-            face_preload, gaze_preload, image_caption_preload
+            face_preload, gaze_preload, image_caption_preload, fall_preload
         object_preload()
         emotion_preload()
         microexpression_preload()
         face_preload()
         gaze_preload()
         image_caption_preload()
+        fall_preload()

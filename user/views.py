@@ -5,10 +5,6 @@ from .models import User
 from .myforms import RegisterForm, UserForm
 
 
-def index(request):
-    return HttpResponse("Hello, world!")
-
-
 def register(request):
     if request.method == "POST":
         register_form = RegisterForm(request.POST)

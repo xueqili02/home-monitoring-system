@@ -9,6 +9,11 @@ import glob
 from transformers import BertTokenizer
 
 from model.emotional_recognition.EMR import to_device, MERCnnModel, get_default_device
+from model.fall_detect_track.ActionsEstLoader import TSSTG
+from model.fall_detect_track.Detection.Utils import ResizePadding
+from model.fall_detect_track.DetectorLoader import TinyYOLOv3_onecls
+from model.fall_detect_track.PoseEstimateLoader import SPPE_FastPose
+from model.fall_detect_track.Track.Tracker import Tracker
 from model.image_caption.configuration import Config
 from model.image_caption.models.caption import build_model
 from model.isLive.gaze_tracking.gaze_tracking import GazeTracking
@@ -20,6 +25,8 @@ sess, probs, face_x = None, None, None
 known_face_encodings, known_face_labels = None, None
 gaze = None
 config, model_caption, tokenizer, start_token, end_token, caption, cap_mask = None, None, None, None, None, None, None
+detect_model, pose_model, tracker, action_model, resize_fn = None, None, None, None, None
+
 def object_preload():
     global object_model, classes, colors, active_objects
     # Set colors
@@ -121,3 +128,27 @@ def image_caption_preload():
 
     caption, cap_mask = create_caption_and_mask(
         start_token, config.max_position_embeddings)
+
+def fall_preload():
+    global detect_model, pose_model, tracker, action_model, resize_fn
+    detection_input_size = 320
+    pose_input_size = '224x160'
+    pose_backbone = 'resnet50'
+    device = 'cuda'
+    # DETECTION MODEL.
+    inp_dets = detection_input_size
+    detect_model = TinyYOLOv3_onecls(inp_dets, device=device)
+
+    # POSE MODEL.
+    inp_pose = pose_input_size.split('x')
+    inp_pose = (int(inp_pose[0]), int(inp_pose[1]))
+    pose_model = SPPE_FastPose(pose_backbone, inp_pose[0], inp_pose[1], device=device)
+
+    # Tracker.
+    max_age = 30
+    tracker = Tracker(max_age=max_age, n_init=3)
+
+    # Actions Estimate.
+    action_model = TSSTG()
+
+    resize_fn = ResizePadding(inp_dets, inp_dets)

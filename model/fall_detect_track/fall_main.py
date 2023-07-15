@@ -5,16 +5,11 @@ import time
 import torch
 import argparse
 import numpy as np
-from threading import Thread
-from model.fall_detect_track.Detection.Utils import ResizePadding
+
 from model.fall_detect_track.CameraLoader import CamLoader, CamLoader_Q
-from model.fall_detect_track.DetectorLoader import TinyYOLOv3_onecls
-
-from model.fall_detect_track.PoseEstimateLoader import SPPE_FastPose
 from model.fall_detect_track.fn import draw_single
-
-from model.fall_detect_track.Track.Tracker import Detection, Tracker
-from model.fall_detect_track.ActionsEstLoader import TSSTG
+from model.fall_detect_track.Track.Tracker import Detection
+from service.preload import detect_model, pose_model, tracker, action_model, resize_fn
 
 # source = './output/test1.mp4'
 
@@ -32,32 +27,14 @@ from model.fall_detect_track.ActionsEstLoader import TSSTG
 # par.add_argument('--device', type=str, default='cuda', help='Device to run model on cpu or cuda.')
 # args = par.parse_args()
 
-detection_input_size = 320
-pose_input_size = '224x160'
-pose_backbone = 'resnet50'
+# detection_input_size = 320
+# pose_input_size = '224x160'
+# pose_backbone = 'resnet50'
 show_detected = False
 show_skeleton = True
 save_out = './output/output.mp4'
-device = 'cuda'
+# device = 'cuda'
 
-
-# DETECTION MODEL.
-inp_dets = detection_input_size
-detect_model = TinyYOLOv3_onecls(inp_dets, device=device)
-
-# POSE MODEL.
-inp_pose = pose_input_size.split('x')
-inp_pose = (int(inp_pose[0]), int(inp_pose[1]))
-pose_model = SPPE_FastPose(pose_backbone, inp_pose[0], inp_pose[1], device=device)
-
-# Tracker.
-max_age = 30
-tracker = Tracker(max_age=max_age, n_init=3)
-
-# Actions Estimate.
-action_model = TSSTG()
-
-resize_fn = ResizePadding(inp_dets, inp_dets)
 
 def preproc(image):
     """preprocess function for CameraLoader.

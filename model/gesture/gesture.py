@@ -102,8 +102,6 @@ def g():
 
 
 def gesture_reco(img):
-    # gesture_threshold = 800
-
     #  Hand Detector
     detector = HandDetector(
         detectionCon=0.8,
@@ -119,9 +117,8 @@ def gesture_reco(img):
     if hands:
         hand = hands[0]
         fingers = detector.fingersUp(hand)
-        # cx, cy = hand['center']
         data = 'wait'
-        # if cy <= gesture_threshold:
+
         # Gesture 1 - Left
         if fingers == [1, 0, 0, 0, 0]:
             if data == 'wait':
@@ -138,16 +135,3 @@ def gesture_reco(img):
 
         return data
     return None
-
-# Button pressed itterations
-
-# if pressed_button:
-#     button_counter += 1
-#     if button_counter > button_delay:
-#         button_counter = 0
-#         pressed_button = False
-
-# if cmd != data:
-#     cmd = data
-#     # 这里改成return就能传信息
-#     print(cmd)

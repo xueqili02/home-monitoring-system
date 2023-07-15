@@ -43,19 +43,6 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware'
 ]
 
-
-# ASGI_APPLICATION = 'family_monitor_server.asgi.application'
-#
-# CHANNEL_LAYERS = {
-#     'default': {
-#         # 'BACKEND': 'channels.layers.InMemoryChannelLayer',
-#         'BACKEND': 'channels_redis.core.RedisChannelLayer',
-#         'CONFIG': {
-#             'hosts': [('127.0.0.1', 6379)]
-#         },
-#     },
-# }
-
 ROOT_URLCONF = 'family_monitor_server.urls'
 
 TEMPLATES = [
@@ -131,8 +118,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CORS_ORIGIN_WHITELIST = (
     'http://127.0.0.1:8000',
     'http://localhost:8000',
-    # 'ws://127.0.0.1:8000',
-    # 'ws://localhost:8000'
 )
 CORS_ALLOW_CREDENTIALS = False  # 允许携带cookie
 
