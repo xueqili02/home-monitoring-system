@@ -17,7 +17,7 @@ from model.isLive.gaze_track import blink_detection
 from user.models import User
 
 
-BLINK_THRESHOLD = 4
+BLINK_THRESHOLD = 2
 
 def upload_image(request, uid):
     if request.method == "POST":
@@ -48,7 +48,7 @@ def face_login(request):
             blink_cnt = blink_cnt + 1
         else:
             no_blink_image = image
-        if blink_cnt >= 4:
+        if blink_cnt >= BLINK_THRESHOLD:
             flag = True
             break
 
