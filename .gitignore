@@ -20,6 +20,5 @@ __pycache__/
 /model/microexpression_recognition/model/emotion_model-30001.index
 /model/microexpression_recognition/model/emotion_model-30001.meta
 /model/isLive/gaze_tracking/trained_models/shape_predictor_68_face_landmarks.dat
-/model/gaze_vector/checkpoint.pt
 /model/image_caption/models/*.pth
 /model/fall_detect_track/Models/
