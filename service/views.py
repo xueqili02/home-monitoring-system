@@ -113,4 +113,4 @@ def gesture_recognition(request):
     if gesture is not None:
         return HttpResponse(json.dumps({'code': 200, 'message': 'success', 'data': gesture}))
     else:
-        return HttpResponse(json.dumps({'code': 200, 'message': 'Not a valid gesture', 'data': None}))
+        return HttpResponse(json.dumps({'code': 403, 'message': 'Not a valid gesture', 'data': None}))

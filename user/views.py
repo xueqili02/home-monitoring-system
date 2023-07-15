@@ -1,8 +1,6 @@
 import json
 
-from django.core import serializers
 from django.http import HttpResponse
-
 from .models import User
 from .myforms import RegisterForm, UserForm
 
@@ -68,24 +66,6 @@ def register(request):
     }
     return HttpResponse(json.dumps(response))
 
-
-# def login(request):
-#     # username = None
-#     user = None
-#     if request.method == 'POST':
-#         user = json.loads(request.body)
-#         # print(new_user)
-#         username = user.get('username')
-#         password = user.get('password')
-#         # 这里继续添加用户注册需要的属性，邮箱等等
-#         # print(username, password)
-#         getuser = User.objects.filter(username=username, password=password)  # 这里添加向User表里insert需要的属性
-#         print(getuser)
-#         if not getuser.exists():
-#             return HttpResponse("failure")
-#     return HttpResponse("success")  # 成功 or 失败
-
-
 def login(request):
     if request.method == "POST":
         login_form = UserForm(request.POST)
@@ -127,24 +107,6 @@ def login(request):
     }
     return HttpResponse(json.dumps(response))
 
-#
-# def logout(request):
-#     if not request.session.get('is_login', None):  # 如果本来就未登录，也就没有登出一说
-#         response = {
-#             'code': 403,
-#             'message': 'you are not logged in',
-#             'data': None
-#         }
-#         return HttpResponse(json.dumps(response))
-#     request.session.flush()  # 将session中的所有内容全部清空
-#     response = {
-#         'code': 200,
-#         'message': 'success',
-#         'data': None
-#     }
-#     return HttpResponse(json.dumps(response))
-
-
 def information(request, uid):
     if request.method == "GET":
         try:
@@ -166,10 +128,14 @@ def allinformation(request):
     if request.method == "GET":
         try:
             users = User.objects.all() # select * from user where id=uid;
+            all_user_info = []
+            for user in users:
+                all_user_info.append({'id': user.id, 'username': user.username,
+                                      'email': user.email, 'camera_urls': user.camera_urls})
             response = {
                 'code': 200,
                 'message': 'success',
-                'data': serializers.serialize('json', users)
+                'data': all_user_info
             }
             return HttpResponse(json.dumps(response))
         except User.DoesNotExist:
