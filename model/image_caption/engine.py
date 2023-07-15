@@ -28,7 +28,7 @@ def train_one_epoch(model, criterion, data_loader,
             epoch_loss += loss_value
 
             if not math.isfinite(loss_value):
-                print(f'Loss is {loss_value}, stopping training')
+                # print(f'Loss is {loss_value}, stopping training')
                 sys.exit(1)
 
             optimizer.zero_grad()

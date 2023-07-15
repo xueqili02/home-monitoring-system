@@ -14,4 +14,4 @@ class ServiceConfig(AppConfig):
         face_preload()
         gaze_preload()
         image_caption_preload()
-        fall_preload()
+        # fall_preload()

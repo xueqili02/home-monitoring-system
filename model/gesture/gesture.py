@@ -94,7 +94,7 @@ def g():
         if cmd != data:
             cmd = data
             # 这里改成return就能传信息
-            print(cmd)
+            # print(cmd)
 
         # key = cv2.waitKey(1)
         # if key == ord('q'):

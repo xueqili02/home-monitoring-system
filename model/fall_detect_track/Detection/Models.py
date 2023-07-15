@@ -337,12 +337,12 @@ class Darknet(nn.Module):
         own_state = self.state_dict()
         for name, param in state.items():
             if name not in own_state:
-                print(f'Model does not have this param: {name}!')
+                # print(f'Model does not have this param: {name}!')
                 continue
 
             if param.shape != own_state[name].shape:
-                print(f'Do not load this param: {name} cause it shape not equal! : '
-                      f'{param.shape} into {own_state[name].shape}')
+                # print(f'Do not load this param: {name} cause it shape not equal! : '
+                #       f'{param.shape} into {own_state[name].shape}')
                 continue
 
             own_state[name].copy_(param)

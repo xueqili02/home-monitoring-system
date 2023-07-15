@@ -18,7 +18,7 @@ from util.eye_sample import EyeSample
 torch.backends.cudnn.enabled = True
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-print(device)
+# print(device)
 
 webcam = cv2.VideoCapture(0)
 webcam.set(cv2.CAP_PROP_FRAME_WIDTH, 960)

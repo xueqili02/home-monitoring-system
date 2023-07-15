@@ -12,7 +12,7 @@ def emo_reco():
 
     # GPU if available, else CPU
     device = get_default_device()
-    print("Selected device:", device)
+    # print("Selected device:", device)
 
     # Loading pretrained weights
     w = 'model/emotional_recognition/model_U.pth'
