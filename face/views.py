@@ -78,7 +78,7 @@ def intrusion_recognition(request, uid):
         return HttpResponse(json.dumps({'code': 403, 'message': 'user does not exist', 'data': None}))
 
     def frame_generator():
-        for frame, intrusion_time, video_filename, fps, width, height, video_queue in fr('rtmp://47.92.211.14:1935/live/1', uid):
+        for frame, intrusion_time, video_filename, fps, width, height, video_queue in fr('rtmp://47.92.211.14:1935/live/5', uid):
             if intrusion_time is not None:
                 Intrusion.objects.create(uid=user, intrusion_time=intrusion_time, video_path=video_filename)
                 # 创建一个VideoWriter对象，用于保存视频

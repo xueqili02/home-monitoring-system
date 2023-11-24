@@ -1,41 +1,86 @@
-## 项目结构
-'family_monitor_server/'是项目容器
+# Home Monitoring System
 
-'user/'下是用户相关功能
+## Tech Stack
 
-'recognition/'下是模型相关功能
+- Backend
+    - Python, Django, MySQL, OpenCV, nginx, ECS
+- Frontend
+    - Vue, Axios, Element plus, Rellax, Kinesis, Echarts
+- Models
+    - PyTorch, Tensorflow
 
-'model/'下是我们的各种模型，如果模型包含多个文件，请建立子文件夹
+## Module
 
-## 怎样安装
-以下需要命令行工作目录在本仓库根文件夹下
-### 准备Python虚拟环境
-#### 创建虚拟环境
+- User Management
+    - ORM framework
+    - model: face recognition + blinking detection for dynamic face login
+- Pedestrian and Pet Recognition
+    - model: object detection
+- Emotion Recognition
+    - model: micro expression recognition + emotion recognition
+- Intrusion Detection
+    - model: face recognition
+    - Video Storage: H.264 encoded MP4 video before and after intrusion
+- Model Service
+    - model: image captioning + 3D to 2D model + fall detection
+- Disabilities Friendly
+    - model: gesture recognition
+    - Self-defined gestures
+
+## Docs
+
+Requirement Analysis Document, Design Document, Testing Document, User Manual.
+
+## Project Structure
+
+'family_monitor_server/' is the project container.
+
+Under 'user/' are functionalities related to users.
+
+Under 'recognition/' are functionalities related to models.
+
+Under 'model/' are various models. If a model contains multiple files, please create a subfolder.
+
+## Installation Steps
+
+Below requires the command line working directory to be in the root folder of this repository.
+
+### Prepare Python Virtual Environment
+
+#### Create Virtual Environment
+
 ```bash
 python -m venv venv
 ```
-#### 激活虚拟环境
+
+#### Activate Virtual Environment
+
 **Windows**
+
 ```powershell
 .\venv\Scripts\activate.bat
 ```
 
 **Linux**
+
 ```bash
 source ./venv/bin/activate
 ```
-看见命令行提示符前面显示`(venv)`，代表成功进入虚拟环境。
 
-### 安装所需依赖
+When the command prompt displays (venv), it signifies that the virtual environment has been successfully activated.
 
-#### requirements.txt一键安装，在上一步进入虚拟环境（venv）后，命令行运行下面的命令
+### Install Required Dependencies
+
+#### One-click installation via requirements.txt, after entering the virtual environment in the previous step (venv), run the following command in the command line
+
 ```bash
 pip install -r requirements.txt
 ```
 
-### 数据库
+### Database
+
 ```bash
-将db_setting.cnf复制到项目根目录下
+Copy db_setting.cnf to the project root directory.
 ```
 
 [//]: # (### 数据库迁移（对数据模型的修改）)
@@ -52,17 +97,13 @@ pip install -r requirements.txt
 
 [//]: # (```)
 
-### 模型配置
-将群里发的模型复制到指定目录下
+### Model Configuration
 
-model_U.pth 放到 model/emotional_recognition/下
+Copy the models sent in the group to the specified directory.
 
-model.zip解压后的四个文件，放到model/microexpression_recognition/model/下
-
-shape_predictor_68_face_landmarks.dat文件，放到model/isLive/gaze_tracking/trained_models/目录下
-
-checkpoint.pt放到model/gaze_vector/目录下
-
-weight389123791.pth和weight493084032.pth都放到/model/image_caption/models/目录下
-
-Fall_Models解压后的Models文件夹放到/model/fall-detect-track/目录下
+- Place model_U.pth under model/emotional_recognition/
+- After extracting model.zip, place the four files in model/microexpression_recognition/model/
+- Place shape_predictor_68_face_landmarks.dat under model/isLive/gaze_tracking/trained_models/
+- Place checkpoint.pt under model/gaze_vector/
+- Place weight389123791.pth and weight493084032.pth under /model/image_caption/models/
+- Place the 'Models' folder from the extracted Fall_Models under /model/fall-detect-track/

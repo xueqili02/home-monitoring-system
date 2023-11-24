@@ -14,7 +14,7 @@ camera_ranges = {}
 
 def object_recognition(request):
     def frame_generator():
-        for frame, cnt in object_detection('rtmp://47.92.211.14:1935/live'):
+        for frame, cnt in object_detection('rtmp://47.92.211.14:1935/live/5'):
             ret, jpeg = cv2.imencode('.jpg', frame)
             frame_data = jpeg.tobytes()
 

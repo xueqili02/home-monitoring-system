@@ -58,7 +58,7 @@ def demo(modelPath, showBox=True):
         saver.restore(sess, ckpt.model_checkpoint_path)
 
     # get remote camera
-    video_captor = cv2.VideoCapture('rtmp://47.92.211.14:1935/live')
+    video_captor = cv2.VideoCapture('rtmp://47.92.211.14:1935/live/5')
 
     emoji_face = []
     result = None

@@ -38,7 +38,7 @@ def call_service(requests, obj, emotion, microexpression, face):
 
 
 def call(obj, emotion, microexpression, face):
-    cap = cv2.VideoCapture('rtmp://47.92.211.14:1935/live/1')
+    cap = cv2.VideoCapture('rtmp://47.92.211.14:1935/live/5')
     cnt = 0
     while True:
         cnt = cnt + 1
@@ -96,7 +96,7 @@ def image_download(request):
 
 def fall_recognition(request):
     def frame_generator():
-        for frame in fall_detection('rtmp://47.92.211.14:1935/live/1'):
+        for frame in fall_detection('rtmp://47.92.211.14:1935/live/5'):
             ret, jpeg = cv2.imencode('.jpg', frame)
             frame_data = jpeg.tobytes()
 

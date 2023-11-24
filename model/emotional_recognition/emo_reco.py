@@ -5,7 +5,7 @@ from model.emotional_recognition.EMR import get_default_device, to_device, MERCn
 
 
 def emo_reco():
-    cam = cv2.VideoCapture('rtmp://47.92.211.14:1935/live')
+    cam = cv2.VideoCapture('rtmp://47.92.211.14:1935/live/5')
     # cam = cv2.VideoCapture("http://192.168.43.164:4747/video")# connecting to ip cam
     # cam = cv2.VideoCapture('./Videos/all.mp4')# video
     # cam.set(cv2.CAP_PROP_FPS, 30)
